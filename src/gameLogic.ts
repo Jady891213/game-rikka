@@ -11,6 +11,14 @@ export type WinResult = {
   stars: number;
 };
 
+export type ExtendedRules = {
+  riichi: boolean;
+  threeColors: boolean;
+  threePairs: boolean;
+  radiance: boolean;
+  peerless: boolean;
+};
+
 export function generateDeck(): TileData[] {
   const deck: TileData[] = [];
   let idCounter = 0;
@@ -33,12 +41,12 @@ export function generateDeck(): TileData[] {
   return deck;
 }
 
-export function isTenpai(hand: TileData[]): boolean {
+export function isTenpai(hand: TileData[], rules?: ExtendedRules): boolean {
   if (hand.length !== 5) return false;
   for (let i = 1; i <= 6; i++) {
     for (let j = i; j <= 6; j++) {
       const testTile: TileData = { id: 'test', top: i, bottom: j, isStar: i === j };
-      if (checkWin([...hand, testTile], true)) {
+      if (checkWin([...hand, testTile], true, rules)) {
         return true;
       }
     }
@@ -46,10 +54,11 @@ export function isTenpai(hand: TileData[]): boolean {
   return false;
 }
 
-export function checkWin(hand: TileData[], isPassive: boolean = false): WinResult | null {
+export function checkWin(hand: TileData[], isPassive: boolean = false, rules?: ExtendedRules): WinResult | null {
   if (hand.length !== 6) return null;
 
   let bestWin: WinResult | null = null;
+  const r = rules || { riichi: true, threeColors: true, threePairs: true, radiance: true, peerless: true };
 
   const updateBest = (type: string, score: number, stars: number) => {
     if (!bestWin || score > bestWin.score) {
@@ -75,7 +84,7 @@ export function checkWin(hand: TileData[], isPassive: boolean = false): WinResul
     const is1to6 = sortedTops.join(',') === '1,2,3,4,5,6';
 
     // 无双 (Peerless)
-    if (stars === 6 && is1to6) {
+    if (r.peerless && stars === 6 && is1to6) {
       updateBest('无双', 9, 0);
     }
 
@@ -85,26 +94,28 @@ export function checkWin(hand: TileData[], isPassive: boolean = false): WinResul
     }
 
     // 辉光 (Radiance)
-    if (stars === 6) {
+    if (r.radiance && stars === 6) {
       updateBest('辉光', 5, 6);
     }
 
     // 三对 (Three Pairs)
-    const pairs = [];
-    const used = new Set();
-    for (let x = 0; x < 6; x++) {
-      if (used.has(x)) continue;
-      for (let y = x + 1; y < 6; y++) {
-        if (!used.has(y) && tops[x] === tops[y] && bottoms[x] === bottoms[y]) {
-          pairs.push([x, y]);
-          used.add(x);
-          used.add(y);
-          break;
+    if (r.threePairs) {
+      const pairs = [];
+      const used = new Set();
+      for (let x = 0; x < 6; x++) {
+        if (used.has(x)) continue;
+        for (let y = x + 1; y < 6; y++) {
+          if (!used.has(y) && tops[x] === tops[y] && bottoms[x] === bottoms[y]) {
+            pairs.push([x, y]);
+            used.add(x);
+            used.add(y);
+            break;
+          }
         }
       }
-    }
-    if (pairs.length === 3) {
-      updateBest('三对', 5 + stars, stars);
+      if (pairs.length === 3) {
+        updateBest('三对', 5 + stars, stars);
+      }
     }
 
     // 三连 (Sanren)
@@ -135,7 +146,7 @@ export function checkWin(hand: TileData[], isPassive: boolean = false): WinResul
     }
 
     // 三色 (Three Colors)
-    if (isPassive) {
+    if (r.threeColors && isPassive) {
       const uniqueColors = new Set([...tops, ...bottoms]);
       if (uniqueColors.size === 3) {
         updateBest('三色', 3 + stars, stars); // Assuming 3 points base

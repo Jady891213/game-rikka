@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { TileData, generateDeck, checkWin, WinResult, isTenpai } from './gameLogic';
+import { TileData, generateDeck, checkWin, WinResult, isTenpai, ExtendedRules } from './gameLogic';
 import { Tile } from './components/Tile';
-import { RefreshCw, Play, Trophy, User, Bot, Book, ChevronDown, ChevronUp } from 'lucide-react';
+import { RefreshCw, Play, Trophy, User, Bot, Book, ChevronDown, ChevronUp, Volume2, VolumeX } from 'lucide-react';
+import { soundService } from './utils/audio';
 
 type ScoreHistory = {
   round: number;
@@ -54,6 +55,12 @@ const t = {
     rulesTitle: '牌型与计分',
     starBonus: '绚烂奖励：',
     starBonusDesc: '完成牌型后，手牌中每有1个★额外加1分（辉光除外）。',
+    extendedRules: '启用拓展规则',
+    riichi: '立直',
+    threeColors: '三色',
+    threePairs: '三对',
+    radiance: '辉光',
+    peerless: '无双',
     startGame: '开始游戏',
     subtitle: '日系麻将变体，42张牌。匹配花瓣组成胡牌牌型。',
     you: '你',
@@ -84,6 +91,12 @@ const t = {
     rulesTitle: 'Hand Patterns & Scoring',
     starBonus: 'Radiance Bonus:',
     starBonusDesc: '+1 pt for each Star tile in a winning hand (except Kuikou).',
+    extendedRules: 'Enable Extended Rules',
+    riichi: 'Riichi',
+    threeColors: 'Sanshoku',
+    threePairs: 'Sandui',
+    radiance: 'Kuikou',
+    peerless: 'Musou',
     startGame: 'Start Game',
     subtitle: 'A Japanese Riichi Mahjong variant with 42 tiles. Match petals to form winning hands.',
     you: 'You',
@@ -121,6 +134,7 @@ const rulesData = [
   },
   {
     id: 'sandui',
+    ruleKey: 'threePairs',
     name: { zh: '三对', en: 'Sandui' },
     pts: <>{5}+<StarIcon/> pt</>,
     desc: { zh: '3对一模一样的牌。', en: '3 pairs of identical tiles.' },
@@ -128,6 +142,7 @@ const rulesData = [
   },
   {
     id: 'sanshoku',
+    ruleKey: 'threeColors',
     name: { zh: '三色', en: 'Sanshoku' },
     pts: <>{3}+<StarIcon/> pt</>,
     desc: { zh: '牌面只有三种颜色（只能被动胡/一牌之差）。', en: 'Hand contains exactly 3 unique numbers across all tops and bottoms. (Passive win only).' },
@@ -135,6 +150,7 @@ const rulesData = [
   },
   {
     id: 'kuikou',
+    ruleKey: 'radiance',
     name: { zh: '辉光', en: 'Kuikou' },
     pts: <>{5} pt</>,
     desc: { zh: '全星牌（固定5分，不计算绚烂奖励）。', en: '6 Star tiles. (Ignores Radiance bonus).' },
@@ -142,6 +158,7 @@ const rulesData = [
   },
   {
     id: 'musou',
+    ruleKey: 'peerless',
     name: { zh: '无双', en: 'Musou' },
     pts: <>{3}+{6} pt</>,
     desc: { zh: '全星牌且上方1-6连续（固定3分+绚烂6分）。', en: '6 Star tiles with tops 1 through 6. (3 base + 6 Radiance).' },
@@ -165,6 +182,14 @@ const getHandTypeName = (type: string, lang: Lang) => {
 
 export default function App() {
   const [lang, setLang] = useState<Lang>('zh');
+  const [isMuted, setIsMuted] = useState(false);
+  const [enabledRules, setEnabledRules] = useState<ExtendedRules>({
+    riichi: true,
+    threeColors: true,
+    threePairs: true,
+    radiance: true,
+    peerless: true
+  });
   const [openHistoryId, setOpenHistoryId] = useState<number | null>(null);
   const [playerCount, setPlayerCount] = useState<number>(4);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -223,12 +248,19 @@ export default function App() {
     if (!players[0] || players[0].hand.length !== 5) return new Set<string>();
     const wins = new Set<string>();
     fieldFaceUp.forEach(t => {
-      if (checkWin([...players[0].hand, t], true)) wins.add(t.id);
+      if (checkWin([...players[0].hand, t], true, enabledRules)) wins.add(t.id);
     });
     return wins;
   }, [players[0]?.hand, fieldFaceUp]);
 
+  const toggleMute = () => {
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    soundService.isMuted = newMuted;
+  };
+
   const startNewGame = () => {
+    soundService.playNewGame();
     const newPlayers: Player[] = [
       { id: 0, name: t[lang].you, hand: [], score: 0, isBot: false, history: [], isRiichi: false }
     ];
@@ -271,6 +303,7 @@ export default function App() {
       return;
     }
 
+    soundService.playDraw();
     const tile = fieldFaceDown[0];
     setFieldFaceDown(prev => prev.slice(1));
     
@@ -284,6 +317,7 @@ export default function App() {
   const handleDrawFaceUp = (tile: TileData) => {
     if (phase !== 'DRAW' || players[currentPlayerIndex].isBot) return;
     
+    soundService.playDraw();
     setFieldFaceUp(prev => prev.filter(t => t.id !== tile.id));
     const newHand = [...players[currentPlayerIndex].hand, tile];
     updatePlayerHand(currentPlayerIndex, newHand);
@@ -293,7 +327,7 @@ export default function App() {
   };
 
   const checkPlayerWin = (hand: TileData[], isPassive: boolean) => {
-    const win = checkWin(hand, isPassive);
+    const win = checkWin(hand, isPassive, enabledRules);
     if (win) {
       if (currentPlayerIndex === 0) {
         setCurrentWinOption(win);
@@ -321,6 +355,7 @@ export default function App() {
     const targetIdx = idx !== undefined ? idx : selectedTileIndex;
     if (phase !== 'DISCARD' || players[currentPlayerIndex].isBot || targetIdx === null) return;
     
+    soundService.playDiscard();
     setCurrentWinOption(null);
     const hand = players[currentPlayerIndex].hand;
     const discardedTile = hand[targetIdx];
@@ -336,6 +371,7 @@ export default function App() {
   const handleRiichi = () => {
     if (phase !== 'DISCARD' || players[currentPlayerIndex].isBot || selectedTileIndex === null) return;
     
+    soundService.playRiichi();
     setPlayers(prev => {
       const next = [...prev];
       next[currentPlayerIndex] = { ...next[currentPlayerIndex], isRiichi: true };
@@ -416,6 +452,7 @@ export default function App() {
   const handleWin = (winnerIdx: number, winningHand: TileData[], winResult: WinResult) => {
     if (phase === 'ROUND_END' || phase === 'GAME_OVER' || winnerInfo !== null || isProcessingWin.current) return;
     isProcessingWin.current = true;
+    soundService.playWin();
     const winner = players[winnerIdx];
     
     // Add Riichi bonus
@@ -435,7 +472,7 @@ export default function App() {
       let bestTenpaiWin: WinResult | null = null;
       for (const faceUpTile of fieldFaceUp) {
         const testHand = [...p.hand, faceUpTile];
-        const w = checkWin(testHand, true);
+        const w = checkWin(testHand, true, enabledRules);
         if (w && (!bestTenpaiWin || w.score > bestTenpaiWin.score)) {
           bestTenpaiWin = w;
         }
@@ -471,6 +508,7 @@ export default function App() {
   };
 
   const proceedToNextRound = () => {
+    soundService.playNewGame();
     const nextStart = (startingPlayerIndex + 1) % players.length;
     setStartingPlayerIndex(nextStart);
     setRound(prev => prev + 1);
@@ -492,7 +530,7 @@ export default function App() {
         let bestFaceUpScore = -1;
         for (const t of fieldFaceUp) {
           const testHand = [...bot.hand, t];
-          const win = checkWin(testHand, true);
+          const win = checkWin(testHand, true, enabledRules);
           if (win && win.score > bestFaceUpScore) {
             bestFaceUpScore = win.score;
             bestFaceUpTile = t;
@@ -537,7 +575,7 @@ export default function App() {
         const newHand = [...bot.hand, drawnTile];
         updatePlayerHand(currentPlayerIndex, newHand);
         
-        const win = checkWin(newHand, !!bestFaceUpTile);
+        const win = checkWin(newHand, !!bestFaceUpTile, enabledRules);
         if (win) {
           handleWin(currentPlayerIndex, newHand, win);
           return;
@@ -586,9 +624,14 @@ export default function App() {
   if (phase === 'START') {
     return (
       <div className="min-h-screen bg-emerald-900 text-white flex flex-col items-center justify-center p-4 relative">
-        <div className="absolute top-4 right-4 flex bg-emerald-800 rounded overflow-hidden border border-emerald-600">
-          <button onClick={() => setLang('zh')} className={`px-3 py-1 text-sm font-bold ${lang === 'zh' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-700'}`}>中</button>
-          <button onClick={() => setLang('en')} className={`px-3 py-1 text-sm font-bold ${lang === 'en' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-700'}`}>EN</button>
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button onClick={toggleMute} className="p-2 bg-emerald-800 rounded border border-emerald-600 text-emerald-400 hover:bg-emerald-700 hover:text-white transition-colors">
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          <div className="flex bg-emerald-800 rounded overflow-hidden border border-emerald-600">
+            <button onClick={() => setLang('zh')} className={`px-3 py-1 text-sm font-bold ${lang === 'zh' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-700'}`}>中</button>
+            <button onClick={() => setLang('en')} className={`px-3 py-1 text-sm font-bold ${lang === 'en' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-700'}`}>EN</button>
+          </div>
         </div>
         
         <div className="flex flex-col md:flex-row items-center justify-center gap-16 w-full max-w-6xl">
@@ -613,7 +656,7 @@ export default function App() {
             <h1 className="text-6xl font-bold mb-8 text-yellow-400 drop-shadow-lg">{t[lang].title}</h1>
             <p className="text-xl mb-12 max-w-md text-center text-emerald-100">{t[lang].subtitle}</p>
             
-            <div className="flex flex-col items-center gap-4 mb-12">
+            <div className="flex flex-col items-center gap-4 mb-8">
               <div className="text-emerald-200 font-semibold tracking-wider">{lang === 'zh' ? '选择人数' : 'Select Players'}</div>
               <div className="flex gap-4">
                 {[2, 3, 4, 5].map(num => (
@@ -624,6 +667,24 @@ export default function App() {
                   >
                     {num}
                   </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 mb-12">
+              <div className="text-emerald-200 font-semibold tracking-wider">{t[lang].extendedRules}</div>
+              <div className="flex flex-wrap justify-center gap-3 max-w-lg">
+                {(['riichi', 'threeColors', 'threePairs', 'radiance', 'peerless'] as const).map(rule => (
+                  <label key={rule} className={`flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-colors border ${enabledRules[rule] ? 'bg-emerald-700/80 border-emerald-500' : 'bg-emerald-900/50 border-emerald-800/50 hover:bg-emerald-800/50'}`}>
+                    <input 
+                      type="checkbox" 
+                      className="hidden"
+                      checked={enabledRules[rule]}
+                      onChange={(e) => setEnabledRules(prev => ({ ...prev, [rule]: e.target.checked }))}
+                    />
+                    <div className={`w-3 h-3 rounded-full ${enabledRules[rule] ? 'bg-yellow-400' : 'bg-emerald-800'}`} />
+                    <span className={`font-medium ${enabledRules[rule] ? 'text-emerald-100' : 'text-emerald-500'}`}>{t[lang][rule]}</span>
+                  </label>
                 ))}
               </div>
             </div>
@@ -650,9 +711,14 @@ export default function App() {
       <header className="p-4 bg-emerald-950 flex justify-between items-center shadow-md">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold text-yellow-400">{t[lang].title}</h1>
-          <div className="flex bg-emerald-900 rounded overflow-hidden border border-emerald-700">
-            <button onClick={() => setLang('zh')} className={`px-2 py-1 text-xs font-bold ${lang === 'zh' ? 'bg-emerald-700 text-white' : 'text-emerald-400 hover:bg-emerald-800'}`}>中</button>
-            <button onClick={() => setLang('en')} className={`px-2 py-1 text-xs font-bold ${lang === 'en' ? 'bg-emerald-700 text-white' : 'text-emerald-400 hover:bg-emerald-800'}`}>EN</button>
+          <div className="flex gap-2">
+            <button onClick={toggleMute} className="p-1.5 bg-emerald-900 rounded border border-emerald-700 text-emerald-400 hover:bg-emerald-800 hover:text-white transition-colors">
+              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            </button>
+            <div className="flex bg-emerald-900 rounded overflow-hidden border border-emerald-700">
+              <button onClick={() => setLang('zh')} className={`px-2 py-1 text-xs font-bold ${lang === 'zh' ? 'bg-emerald-700 text-white' : 'text-emerald-400 hover:bg-emerald-800'}`}>中</button>
+              <button onClick={() => setLang('en')} className={`px-2 py-1 text-xs font-bold ${lang === 'en' ? 'bg-emerald-700 text-white' : 'text-emerald-400 hover:bg-emerald-800'}`}>EN</button>
+            </div>
           </div>
         </div>
         <div className="flex gap-4">
@@ -709,22 +775,7 @@ export default function App() {
             <div className="mt-2 w-[760px] bg-emerald-950/95 border border-emerald-700 rounded-lg p-6 shadow-2xl text-xs flex flex-col gap-4 backdrop-blur-sm">
               <div className="flex gap-8">
                 <div className="flex-1 flex flex-col gap-4">
-                  {rulesData.slice(0, 4).map(r => (
-                    <div key={r.id} className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
-                        <div className="flex gap-0.5">
-                          {r.example.map((ex, i) => (
-                            <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex-1 flex flex-col gap-4">
-                  {rulesData.slice(4).map(r => (
+                  {rulesData.filter(r => r.id !== 'sandui' && r.id !== 'sanshoku' && r.id !== 'kuikou' && r.id !== 'musou').map(r => (
                     <div key={r.id} className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
@@ -748,6 +799,25 @@ export default function App() {
                       )}
                     </div>
                   </div>
+                </div>
+                <div className="flex-1 flex flex-col gap-4">
+                  {rulesData.filter(r => r.id === 'sandui' || r.id === 'sanshoku' || r.id === 'kuikou' || r.id === 'musou').map(r => {
+                    const isDisabled = r.ruleKey && !enabledRules[r.ruleKey as keyof ExtendedRules];
+                    return (
+                      <div key={r.id} className={`flex flex-col gap-1 ${isDisabled ? 'opacity-30 grayscale' : ''}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
+                          <div className="flex gap-0.5">
+                            {r.example.map((ex, i) => (
+                              <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
+                            ))}
+                          </div>
+                          {isDisabled && <span className="text-red-400 text-[10px] border border-red-400/50 rounded px-1 ml-auto">{lang === 'zh' ? '未启用' : 'Disabled'}</span>}
+                        </div>
+                        <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -822,7 +892,7 @@ export default function App() {
           
           <div className="flex gap-2 mb-4 mt-6">
             {players[0]?.hand.map((tile, idx) => {
-              const canRiichi = phase === 'DISCARD' && currentPlayerIndex === 0 && !players[0].isRiichi && selectedTileIndex === idx && players[0].hand.length === 6 && isTenpai(players[0].hand.filter((_, i) => i !== idx));
+              const canRiichi = enabledRules.riichi && phase === 'DISCARD' && currentPlayerIndex === 0 && !players[0].isRiichi && selectedTileIndex === idx && players[0].hand.length === 6 && isTenpai(players[0].hand.filter((_, i) => i !== idx), enabledRules);
               
               return (
                 <div key={tile.id} className="relative">
@@ -847,6 +917,7 @@ export default function App() {
                   <Tile 
                     tile={tile} 
                     isSelected={selectedTileIndex === idx}
+                    onMouseEnter={() => soundService.playHover()}
                     onClick={() => {
                       if (players[0].isRiichi) return;
                       setSelectedTileIndex(idx === selectedTileIndex ? null : idx);

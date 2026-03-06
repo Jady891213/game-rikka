@@ -18,6 +18,7 @@ interface TileProps {
   isWinningTile?: boolean;
   onClick?: () => void;
   onDoubleClick?: () => void;
+  onMouseEnter?: () => void;
   onFlip?: () => void;
   className?: string;
   size?: 'normal' | 'mini';
@@ -56,13 +57,14 @@ const PetalPattern = ({ num }: { num: number }) => {
   );
 };
 
-export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinningTile, onClick, onDoubleClick, onFlip, className = '', size = 'normal' }) => {
+export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinningTile, onClick, onDoubleClick, onMouseEnter, onFlip, className = '', size = 'normal' }) => {
   const isMini = size === 'mini';
   
   if (isFaceDown) {
     return (
       <div 
         onClick={onClick}
+        onMouseEnter={onMouseEnter}
         className={`${isMini ? 'w-6 h-12 border' : 'w-12 h-24 sm:w-14 sm:h-28 border-2'} bg-emerald-800 border-emerald-600 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
       >
         <div className={`${isMini ? 'w-4 h-10' : 'w-8 h-20'} border border-emerald-500/30 rounded-sm opacity-50`} />
@@ -77,12 +79,13 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
     <div 
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
       className={`relative group ${isMini ? 'w-6 h-12' : 'w-12 h-24 sm:w-14 sm:h-28'} bg-white rounded shadow-md flex flex-col cursor-pointer transition-all duration-200 ${isMini ? '' : selectedClass} ${highlightClass} ${className}`}
     >
-      <div className="flex-1 border-b border-gray-200 flex items-center justify-center overflow-hidden">
+      <div className="flex-1 flex items-center justify-center overflow-hidden">
         <PetalPattern num={tile.top} />
       </div>
-      <div className="flex-1 flex items-center justify-center overflow-hidden">
+      <div className="flex-1 flex items-center justify-center overflow-hidden rotate-180">
         <PetalPattern num={tile.bottom} />
       </div>
       
