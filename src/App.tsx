@@ -809,7 +809,7 @@ export default function App() {
                   key={tile.id} 
                   tile={tile} 
                   isWinningTile={winningTileIds.has(tile.id)}
-                  className="scale-90 origin-top-left"
+                  className="md:scale-90 md:origin-top-left"
                   onClick={() => handleDrawFaceUp(tile)}
                 />
               ))}
