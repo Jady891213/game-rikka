@@ -666,17 +666,17 @@ export default function App() {
           </div>
         </div>
         
-        <div className="flex flex-col md:flex-row items-center justify-center gap-16 w-full max-w-6xl">
-          {/* Left side: Grid of tiles */}
-          <div className="flex flex-col gap-2 bg-emerald-950/50 p-6 rounded-2xl border border-emerald-800/50 shadow-2xl">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full max-w-6xl mt-12 md:mt-0">
+          {/* Left side: Grid of tiles (Hidden on mobile) */}
+          <div className="hidden md:flex flex-col gap-1 md:gap-2 bg-emerald-950/50 p-4 md:p-6 rounded-2xl border border-emerald-800/50 shadow-2xl scale-90 md:scale-100">
             {[1, 2, 3, 4, 5, 6].map(row => (
-              <div key={`row-${row}`} className="flex gap-2">
+              <div key={`row-${row}`} className="flex gap-1 md:gap-2">
                 {[1, 2, 3, 4, 5, 6].map(col => (
                   <Tile key={`tile-${row}-${col}`} tile={{ id: `t-${row}-${col}`, top: row, bottom: col, isStar: row === col }} size="mini" />
                 ))}
               </div>
             ))}
-            <div className="flex gap-2 mt-4 pt-4 border-t border-emerald-800/50">
+            <div className="flex gap-1 md:gap-2 mt-4 pt-4 border-t border-emerald-800/50">
               {[1, 2, 3, 4, 5, 6].map(col => (
                 <Tile key={`star-${col}`} tile={{ id: `s-${col}`, top: col, bottom: col, isStar: true }} size="mini" />
               ))}
@@ -684,18 +684,18 @@ export default function App() {
           </div>
 
           {/* Right side: Start Menu */}
-          <div className="flex flex-col items-center bg-emerald-950/30 p-12 rounded-3xl border border-emerald-800/30">
-            <h1 className="text-6xl font-bold mb-8 text-yellow-400 drop-shadow-lg">{t[lang].title}</h1>
-            <p className="text-xl mb-12 max-w-md text-center text-emerald-100">{t[lang].subtitle}</p>
+          <div className="flex flex-col items-center bg-emerald-950/30 p-6 md:p-12 rounded-3xl border border-emerald-800/30 w-full max-w-md">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 md:mb-8 text-yellow-400 drop-shadow-lg text-center">{t[lang].title}</h1>
+            <p className="text-sm md:text-xl mb-8 md:mb-12 max-w-md text-center text-emerald-100">{t[lang].subtitle}</p>
             
-            <div className="flex flex-col items-center gap-4 mb-8">
-              <div className="text-emerald-200 font-semibold tracking-wider">{lang === 'zh' ? '选择人数' : 'Select Players'}</div>
-              <div className="flex gap-4">
+            <div className="flex flex-col items-center gap-2 md:gap-4 mb-6 md:mb-8">
+              <div className="text-emerald-200 font-semibold tracking-wider text-sm md:text-base">{lang === 'zh' ? '选择人数' : 'Select Players'}</div>
+              <div className="flex gap-2 md:gap-4">
                 {[2, 3, 4, 5].map(num => (
                   <button
                     key={num}
                     onClick={() => setPlayerCount(num)}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold transition-all ${playerCount === num ? 'bg-yellow-500 text-emerald-900 ring-4 ring-yellow-400/50 scale-110' : 'bg-emerald-800 text-emerald-300 hover:bg-emerald-700'}`}
+                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold transition-all ${playerCount === num ? 'bg-yellow-500 text-emerald-900 ring-4 ring-yellow-400/50 scale-110' : 'bg-emerald-800 text-emerald-300 hover:bg-emerald-700'}`}
                   >
                     {num}
                   </button>
@@ -703,19 +703,19 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-4 mb-12">
-              <div className="text-emerald-200 font-semibold tracking-wider">{t[lang].extendedRules}</div>
-              <div className="flex flex-wrap justify-center gap-3 max-w-lg">
+            <div className="flex flex-col items-center gap-2 md:gap-4 mb-8 md:mb-12">
+              <div className="text-emerald-200 font-semibold tracking-wider text-sm md:text-base">{t[lang].extendedRules}</div>
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-lg">
                 {(['riichi', 'threeColors', 'threePairs', 'radiance', 'peerless'] as const).map(rule => (
-                  <label key={rule} className={`flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-colors border ${enabledRules[rule] ? 'bg-emerald-700/80 border-emerald-500' : 'bg-emerald-900/50 border-emerald-800/50 hover:bg-emerald-800/50'}`}>
+                  <label key={rule} className={`flex items-center gap-1 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full cursor-pointer transition-colors border ${enabledRules[rule] ? 'bg-emerald-700/80 border-emerald-500' : 'bg-emerald-900/50 border-emerald-800/50 hover:bg-emerald-800/50'}`}>
                     <input 
                       type="checkbox" 
                       className="hidden"
                       checked={enabledRules[rule]}
                       onChange={(e) => setEnabledRules(prev => ({ ...prev, [rule]: e.target.checked }))}
                     />
-                    <div className={`w-3 h-3 rounded-full ${enabledRules[rule] ? 'bg-yellow-400' : 'bg-emerald-800'}`} />
-                    <span className={`font-medium ${enabledRules[rule] ? 'text-emerald-100' : 'text-emerald-500'}`}>{t[lang][rule]}</span>
+                    <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${enabledRules[rule] ? 'bg-yellow-400' : 'bg-emerald-800'}`} />
+                    <span className={`font-medium text-xs md:text-base ${enabledRules[rule] ? 'text-emerald-100' : 'text-emerald-500'}`}>{t[lang][rule]}</span>
                   </label>
                 ))}
               </div>
@@ -723,14 +723,14 @@ export default function App() {
 
             <button 
               onClick={startNewGame}
-              className="px-8 py-4 bg-yellow-500 hover:bg-yellow-400 text-emerald-900 font-bold rounded-full text-2xl shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+              className="px-6 py-3 md:px-8 md:py-4 bg-yellow-500 hover:bg-yellow-400 text-emerald-900 font-bold rounded-full text-xl md:text-2xl shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
             >
-              <Play fill="currentColor" /> {t[lang].startGame}
+              <Play fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" /> {t[lang].startGame}
             </button>
           </div>
         </div>
 
-        <div className="absolute bottom-6 text-emerald-500/60 text-sm font-medium tracking-wide">
+        <div className="absolute bottom-4 text-emerald-500/60 text-xs md:text-sm font-medium tracking-wide">
           {lang === 'zh' ? '开发 by 五只乳鸽' : 'Developed by ruge'}
         </div>
       </div>
@@ -740,9 +740,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-emerald-900 text-white flex flex-col">
       {/* Header */}
-      <header className="p-4 bg-emerald-950 flex justify-between items-center shadow-md">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-yellow-400">{t[lang].title}</h1>
+      <header className="p-2 md:p-4 bg-emerald-950 flex flex-col md:flex-row justify-between items-center shadow-md gap-2 md:gap-0">
+        <div className="flex items-center justify-between w-full md:w-auto gap-4">
+          <h1 className="text-xl md:text-2xl font-bold text-yellow-400">{t[lang].title}</h1>
           <div className="flex gap-2">
             <button onClick={toggleMute} className="p-1.5 bg-emerald-900 rounded border border-emerald-700 text-emerald-400 hover:bg-emerald-800 hover:text-white transition-colors">
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
@@ -753,16 +753,16 @@ export default function App() {
             </div>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap justify-center gap-2 md:gap-4 w-full md:w-auto">
           {players.map(p => (
             <div key={p.id} className="relative">
               <div 
                 onClick={() => setOpenHistoryId(openHistoryId === p.id ? null : p.id)}
-                className={`flex items-center gap-2 px-3 py-1 rounded cursor-pointer transition-colors ${p.id === currentPlayerIndex ? 'bg-emerald-700 ring-2 ring-yellow-400' : 'bg-emerald-800 hover:bg-emerald-700'}`}
+                className={`flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 rounded cursor-pointer transition-colors ${p.id === currentPlayerIndex ? 'bg-emerald-700 ring-2 ring-yellow-400' : 'bg-emerald-800 hover:bg-emerald-700'}`}
               >
-                {p.isBot ? <Bot size={16} /> : <User size={16} />}
-                <span className="font-semibold">{getPlayerName(p.id)}</span>
-                <span className="text-yellow-400 font-mono">{p.score}</span>
+                {p.isBot ? <Bot size={14} className="md:w-4 md:h-4" /> : <User size={14} className="md:w-4 md:h-4" />}
+                <span className="font-semibold text-xs md:text-base">{getPlayerName(p.id)}</span>
+                <span className="text-yellow-400 font-mono text-xs md:text-base">{p.score}</span>
               </div>
               
               {/* History Dropdown */}
@@ -792,20 +792,20 @@ export default function App() {
             </div>
           ))}
         </div>
-        <div className="text-emerald-200 font-mono">{t[lang].round} {round}</div>
+        <div className="hidden md:block text-emerald-200 font-mono">{t[lang].round} {round}</div>
       </header>
 
       {/* Main Game Area */}
-      <main className="flex-1 flex flex-row relative overflow-hidden">
+      <main className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
         
         {/* Rules Panel */}
-        <div className="absolute top-4 left-4 z-20">
-          <button onClick={() => setIsRulesOpen(!isRulesOpen)} className="bg-emerald-800 hover:bg-emerald-700 px-3 py-2 rounded shadow-md flex items-center gap-2 text-sm font-semibold transition-colors">
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-50">
+          <button onClick={() => setIsRulesOpen(!isRulesOpen)} className="bg-emerald-800 hover:bg-emerald-700 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors">
             <Book size={16} /> {isRulesOpen ? t[lang].hideRules : t[lang].showRules}
           </button>
           {isRulesOpen && (
-            <div className="mt-2 w-[760px] bg-emerald-950/95 border border-emerald-700 rounded-lg p-6 shadow-2xl text-xs flex flex-col gap-4 backdrop-blur-sm">
-              <div className="flex gap-8">
+            <div className="mt-2 w-[90vw] md:w-[760px] max-w-full max-h-[75vh] overflow-y-auto bg-emerald-950/95 border border-emerald-700 rounded-lg p-4 md:p-6 shadow-2xl text-[10px] md:text-xs flex flex-col gap-4 backdrop-blur-sm">
+              <div className="flex flex-col md:flex-row gap-4 md:gap-8">
                 <div className="flex-1 flex flex-col gap-4">
                   {rulesData.filter(r => r.id !== 'sandui' && r.id !== 'sanshoku' && r.id !== 'kuikou' && r.id !== 'musou').map(r => (
                     <div key={r.id} className="flex flex-col gap-1">
@@ -857,9 +857,9 @@ export default function App() {
         </div>
 
         {/* Deck */}
-        <div className="w-48 shrink-0 border-r border-emerald-800/50 p-8 flex flex-col items-center justify-center bg-emerald-900/20">
-          <div className="text-emerald-300 text-sm font-semibold uppercase tracking-widest mb-8">{t[lang].deck} ({fieldFaceDown.length})</div>
-          <div className="relative w-24 h-32 cursor-pointer hover:scale-105 transition-transform" onClick={handleDrawFaceDown}>
+        <div className="w-full md:w-48 h-28 md:h-auto shrink-0 border-b md:border-b-0 md:border-r border-emerald-800/50 p-4 md:p-8 flex flex-row md:flex-col items-center justify-center gap-6 md:gap-0 bg-emerald-900/20">
+          <div className="text-emerald-300 text-xs md:text-sm font-semibold uppercase tracking-widest md:mb-8">{t[lang].deck} ({fieldFaceDown.length})</div>
+          <div className="relative w-12 h-24 md:w-24 md:h-32 cursor-pointer hover:scale-105 transition-transform" onClick={handleDrawFaceDown}>
             {fieldFaceDown.slice(0, 5).map((_, i) => (
               <Tile key={i} tile={_} isFaceDown className="absolute" style={{ top: -i * 2, left: -i * 2 }} />
             ))}
@@ -870,9 +870,9 @@ export default function App() {
         </div>
 
         {/* Field */}
-        <div className="flex-1 p-6 overflow-y-auto bg-emerald-900/40">
-          <div className="text-emerald-300 text-sm font-semibold uppercase tracking-widest mb-4">{t[lang].field}</div>
-          <div className="flex flex-wrap content-start gap-3">
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-emerald-900/40">
+          <div className="text-emerald-300 text-xs md:text-sm font-semibold uppercase tracking-widest mb-4">{t[lang].field}</div>
+          <div className="flex flex-wrap content-start gap-2 md:gap-3">
             {fieldFaceUp.map(tile => (
               <Tile 
                 key={tile.id} 
@@ -887,9 +887,37 @@ export default function App() {
       </main>
 
       {/* Player Hand */}
-      <div className="bg-emerald-950 p-4 flex flex-row items-start gap-4 border-t border-emerald-800 h-56">
-        {/* Logs */}
-        <div className="w-48 shrink-0 flex flex-col bg-emerald-900/50 rounded p-2 border border-emerald-800/50">
+      <div className="bg-emerald-950 p-2 md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 border-t border-emerald-800 h-auto md:h-56">
+        
+        {/* Mobile Top Bar */}
+        <div className="flex flex-row w-full justify-between md:hidden mb-1 px-2">
+          <div className="relative z-30">
+            <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] font-bold bg-emerald-800 px-2 py-1 rounded text-emerald-300 uppercase tracking-wider">
+              {t[lang].log} {isLogsOpen ? <ChevronDown size={12}/> : <ChevronUp size={12}/>}
+            </button>
+            {isLogsOpen && (
+              <div className="absolute bottom-full left-0 mb-2 w-64 bg-emerald-900/95 border border-emerald-700 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm">
+                <div className="flex flex-col gap-1 text-[10px]">
+                  {logs.map((log, i) => (
+                    <div key={i} className="text-emerald-200/80 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
+                      {renderLog(log)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <button 
+            onClick={handleSort}
+            disabled={players[0]?.isRiichi}
+            className={`px-3 py-1 rounded font-semibold transition-colors text-xs shadow-md ${players[0]?.isRiichi ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
+          >
+            {t[lang].sort}
+          </button>
+        </div>
+
+        {/* Logs (Desktop) */}
+        <div className="hidden md:flex w-48 shrink-0 flex-col bg-emerald-900/50 rounded p-2 border border-emerald-800/50">
           <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsLogsOpen(!isLogsOpen)}>
             <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{t[lang].log}</span>
             {isLogsOpen ? <ChevronDown size={14} className="text-emerald-500"/> : <ChevronUp size={14} className="text-emerald-500"/>}
@@ -906,40 +934,40 @@ export default function App() {
         </div>
 
         {/* Hand Tiles */}
-        <div className="flex-1 flex flex-col items-center justify-end h-full pb-2 relative">
+        <div className="flex-1 flex flex-col items-center justify-end w-full pb-1 md:pb-2 relative">
           {currentWinOption && phase === 'DISCARD' && currentPlayerIndex === 0 && (
-            <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 animate-bounce z-40">
+            <div className="absolute right-2 md:right-8 top-0 md:top-1/2 md:-translate-y-1/2 flex flex-col items-center gap-1 md:gap-2 animate-bounce z-40">
               <button
                 onClick={() => handleWin(0, players[0].hand, currentWinOption)}
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-white rounded-xl font-bold shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-transform hover:scale-110 flex items-center gap-2"
+                className="px-4 py-2 md:px-6 md:py-3 bg-orange-500 hover:bg-orange-400 text-white rounded-xl font-bold shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-transform hover:scale-110 flex items-center gap-1 md:gap-2 text-sm md:text-base"
               >
-                <Trophy size={20} />
+                <Trophy size={16} className="md:w-5 md:h-5" />
                 {lang === 'zh' ? '胡牌' : 'Win'}
               </button>
-              <div className="text-orange-300 font-bold text-sm bg-emerald-950/80 px-3 py-1 rounded-full border border-orange-500/30">
+              <div className="text-orange-300 font-bold text-xs md:text-sm bg-emerald-950/80 px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-orange-500/30 whitespace-nowrap">
                 {getHandTypeName(currentWinOption.type, lang)} (+{currentWinOption.score + (players[0].isRiichi ? 1 : 0)})
               </div>
             </div>
           )}
           
-          <div className="flex gap-2 mb-4 mt-6">
+          <div className="flex gap-1 md:gap-2 mb-2 md:mb-4 mt-2 md:mt-6">
             {players[0]?.hand.map((tile, idx) => {
               const canRiichi = enabledRules.riichi && phase === 'DISCARD' && currentPlayerIndex === 0 && !players[0].isRiichi && selectedTileIndex === idx && players[0].hand.length === 6 && isTenpai(players[0].hand.filter((_, i) => i !== idx), { ...enabledRules, threeColors: false });
               
               return (
                 <div key={tile.id} className="relative">
                   {selectedTileIndex === idx && phase === 'DISCARD' && !players[0].isBot && !players[0].isRiichi && (
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+                    <div className="absolute -top-8 md:-top-10 left-1/2 -translate-x-1/2 flex gap-1 md:gap-2 z-30">
                       <button
                         onClick={() => handleDiscard()}
-                        className="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1.5 px-3 rounded shadow-lg whitespace-nowrap"
+                        className="bg-red-600 hover:bg-red-500 text-white text-[10px] md:text-xs font-bold py-1 px-2 md:py-1.5 md:px-3 rounded shadow-lg whitespace-nowrap"
                       >
                         {t[lang].discard}
                       </button>
                       {canRiichi && (
                         <button
                           onClick={handleRiichi}
-                          className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-1.5 px-3 rounded shadow-lg whitespace-nowrap animate-pulse"
+                          className="bg-purple-600 hover:bg-purple-500 text-white text-[10px] md:text-xs font-bold py-1 px-2 md:py-1.5 md:px-3 rounded shadow-lg whitespace-nowrap animate-pulse"
                         >
                           {lang === 'zh' ? '立直' : 'Riichi'}
                         </button>
@@ -966,7 +994,7 @@ export default function App() {
               );
             })}
           </div>
-          <div className="text-emerald-400 text-sm h-6 text-center">
+          <div className="text-emerald-400 text-[10px] md:text-sm h-4 md:h-6 text-center px-2">
             {players[0]?.isRiichi ? (
               <span className="text-purple-400 font-bold animate-pulse">
                 {lang === 'zh' ? '立直状态：自动打出摸到的牌，不可改变手牌。' : 'Riichi: Auto-discarding drawn tiles. Hand is locked.'}
@@ -981,8 +1009,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="w-48 shrink-0 flex flex-col justify-end h-full pb-8 gap-2">
+        {/* Actions (Desktop) */}
+        <div className="hidden md:flex w-48 shrink-0 flex-col justify-end h-full pb-8 gap-2">
           <button 
             onClick={handleSort}
             disabled={players[0]?.isRiichi}

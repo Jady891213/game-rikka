@@ -65,9 +65,9 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
       <div 
         onClick={onClick}
         onMouseEnter={onMouseEnter}
-        className={`${isMini ? 'w-6 h-12 border' : 'w-12 h-24 sm:w-14 sm:h-28 border-2'} bg-emerald-800 border-emerald-600 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
+        className={`${isMini ? 'w-6 h-12 border' : 'w-10 h-20 sm:w-12 sm:h-24 md:w-14 md:h-28 border-2'} bg-emerald-800 border-emerald-600 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
       >
-        <div className={`${isMini ? 'w-4 h-10' : 'w-8 h-20'} border border-emerald-500/30 rounded-sm opacity-50`} />
+        <div className={`${isMini ? 'w-4 h-10' : 'w-6 h-16 sm:w-8 sm:h-20'} border border-emerald-500/30 rounded-sm opacity-50`} />
       </div>
     );
   }
@@ -80,7 +80,7 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onMouseEnter={onMouseEnter}
-      className={`relative group ${isMini ? 'w-6 h-12' : 'w-12 h-24 sm:w-14 sm:h-28'} bg-white rounded shadow-md flex flex-col cursor-pointer transition-all duration-200 ${isMini ? '' : selectedClass} ${highlightClass} ${className}`}
+      className={`relative group ${isMini ? 'w-6 h-12' : 'w-10 h-20 sm:w-12 sm:h-24 md:w-14 md:h-28'} bg-white rounded shadow-md flex flex-col cursor-pointer transition-all duration-200 ${isMini ? '' : selectedClass} ${highlightClass} ${className}`}
     >
       <div className="flex-1 flex items-center justify-center overflow-hidden">
         <PetalPattern num={tile.top} />
