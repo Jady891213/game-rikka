@@ -191,7 +191,7 @@ export default function App() {
     peerless: true
   });
   const [openHistoryId, setOpenHistoryId] = useState<number | null>(null);
-  const [playerCount, setPlayerCount] = useState<number>(4);
+  const [playerCount, setPlayerCount] = useState<number>(3);
   const [players, setPlayers] = useState<Player[]>([]);
   const [fieldFaceDown, setFieldFaceDown] = useState<TileData[]>([]);
   const [fieldFaceUp, setFieldFaceUp] = useState<TileData[]>([]);
@@ -204,7 +204,7 @@ export default function App() {
   const [winnerInfo, setWinnerInfo] = useState<{ player: Player, win: WinResult, tenpaiWinners: { player: Player, win: WinResult, finalScore: number }[] } | null>(null);
   const [currentWinOption, setCurrentWinOption] = useState<WinResult | null>(null);
   const [logs, setLogs] = useState<{key: string, args: any[]}[]>([]);
-  const [isLogsOpen, setIsLogsOpen] = useState(true);
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
   const [isRulesOpen, setIsRulesOpen] = useState(false);
 
   const addLog = (key: string, ...args: any[]) => {
@@ -789,11 +789,28 @@ export default function App() {
       {/* Main Game Area */}
       <main className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
         
-        {/* Rules Panel */}
-        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-20">
-          <button onClick={() => setIsRulesOpen(true)} className="bg-emerald-800 hover:bg-emerald-700 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors">
+        {/* Top Left Controls (Rules & Logs) */}
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-30 flex flex-col gap-2">
+          <button onClick={() => setIsRulesOpen(true)} className="bg-emerald-800 hover:bg-emerald-700 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors w-fit">
             <Book size={16} /> {t[lang].showRules}
           </button>
+          
+          <div className="relative">
+            <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] md:text-xs font-bold bg-emerald-800 px-2 py-1 md:px-3 md:py-1.5 rounded text-emerald-300 uppercase tracking-wider transition-colors hover:bg-emerald-700 w-fit">
+              {t[lang].log} {isLogsOpen ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+            </button>
+            {isLogsOpen && (
+              <div className="absolute top-full left-0 mt-2 w-64 bg-emerald-900/95 border border-emerald-700 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm z-40">
+                <div className="flex flex-col gap-1 text-[10px] md:text-xs">
+                  {logs.map((log, i) => (
+                    <div key={i} className="text-emerald-200/80 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
+                      {renderLog(log)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Left Spacer for Symmetry on PC */}
@@ -808,6 +825,7 @@ export default function App() {
                 <Tile 
                   key={tile.id} 
                   tile={tile} 
+                  size="large"
                   isWinningTile={winningTileIds.has(tile.id)}
                   className="md:scale-90 md:origin-top-left"
                   onClick={() => handleDrawFaceUp(tile)}
@@ -830,7 +848,7 @@ export default function App() {
               )}
               
               {/* Draw button floating above deck, overlapping bottom edge */}
-              {phase === 'DRAW' && currentPlayerIndex === 0 && !players[0].isRiichi && (
+              {phase === 'DRAW' && currentPlayerIndex === 0 && (
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 pointer-events-auto">
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDrawFaceDown(); }}
@@ -858,24 +876,6 @@ export default function App() {
           >
             {t[lang].sort}
           </button>
-        </div>
-
-        {/* Logs (Mobile & Desktop) */}
-        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-30">
-          <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] md:text-xs font-bold bg-emerald-800 px-2 py-1 md:px-3 md:py-1.5 rounded text-emerald-300 uppercase tracking-wider transition-colors hover:bg-emerald-700">
-            {t[lang].log} {isLogsOpen ? <ChevronDown size={14}/> : <ChevronUp size={14}/>}
-          </button>
-          {isLogsOpen && (
-            <div className="absolute bottom-full md:bottom-auto md:top-full left-0 mb-2 md:mb-0 md:mt-2 w-64 bg-emerald-900/95 border border-emerald-700 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm">
-              <div className="flex flex-col gap-1 text-[10px] md:text-xs">
-                {logs.map((log, i) => (
-                  <div key={i} className="text-emerald-200/80 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
-                    {renderLog(log)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Hand Tiles */}
