@@ -123,7 +123,7 @@ const rulesData = [
     name: { zh: '三连', en: 'Sanren' },
     pts: <>{3}+<StarIcon/> pt</>,
     desc: { zh: '2组3连组合（下方点数相同，上方点数连续的3张牌）。', en: 'Two sets of 3 tiles. Each set has identical bottoms and sequential tops.' },
-    example: [{t:1,b:1}, {t:2,b:1}, {t:3,b:1}, {t:4,b:2}, {t:5,b:2}, {t:6,b:2}]
+    example: [{t:1,b:1}, {t:2,b:1}, {t:3,b:1}, {t:3,b:2}, {t:4,b:2}, {t:5,b:2}]
   },
   {
     id: 'rikka',
@@ -154,7 +154,7 @@ const rulesData = [
     name: { zh: '辉光', en: 'Kuikou' },
     pts: <>{5} pt</>,
     desc: { zh: '全星牌（固定5分，不计算绚烂奖励）。', en: '6 Star tiles. (Ignores Radiance bonus).' },
-    example: [{t:1,b:1,s:true}, {t:2,b:2,s:true}, {t:3,b:3,s:true}, {t:4,b:4,s:true}, {t:5,b:5,s:true}, {t:6,b:6,s:true}]
+    example: [{t:1,b:1,s:true}, {t:2,b:2,s:true}, {t:2,b:2,s:true}, {t:4,b:4,s:true}, {t:5,b:5,s:true}, {t:5,b:5,s:true}]
   },
   {
     id: 'musou',
@@ -226,6 +226,7 @@ export default function App() {
         case 'WIN': return `${getPlayerName(args[0])} 以 ${getHandTypeName(args[1], lang)} 胜出！(+${args[2]} 分)`;
         case 'TENPAI': return `${getPlayerName(args[0])} 达成一牌之差！(+${args[1]} 分)`;
         case 'SORTED': return '手牌已整理。';
+        case 'RIICHI': return `${getPlayerName(args[0])} 宣布立直！`;
         default: return '';
       }
     } else {
@@ -239,6 +240,7 @@ export default function App() {
         case 'WIN': return `${getPlayerName(args[0])} wins with ${getHandTypeName(args[1], lang)}! (+${args[2]} pts)`;
         case 'TENPAI': return `${getPlayerName(args[0])} also wins via Tenpai! (+${args[1]} pts)`;
         case 'SORTED': return 'Hand sorted.';
+        case 'RIICHI': return `${getPlayerName(args[0])} declared Riichi!`;
         default: return '';
       }
     }
@@ -316,6 +318,13 @@ export default function App() {
 
   const handleDrawFaceUp = (tile: TileData) => {
     if (phase !== 'DRAW' || players[currentPlayerIndex].isBot) return;
+    
+    if (players[currentPlayerIndex].isRiichi) {
+      const testHand = [...players[currentPlayerIndex].hand, tile];
+      if (!checkWin(testHand, true, enabledRules)) {
+        return; // Disallow drawing from field if in Riichi and it's not a win
+      }
+    }
     
     soundService.playDraw();
     setFieldFaceUp(prev => prev.filter(t => t.id !== tile.id));
@@ -545,7 +554,7 @@ export default function App() {
         } else {
           // Try to draw from field based on heuristic
           let interestingFieldTile: TileData | null = null;
-          if (fieldFaceUp.length > 0) {
+          if (!bot.isRiichi && fieldFaceUp.length > 0) {
             const counts = new Array(7).fill(0);
             bot.hand.forEach(t => { counts[t.top]++; counts[t.bottom]++; });
             
@@ -586,21 +595,28 @@ export default function App() {
         if (isCancelled) return;
         
         let bestDiscardIdx = 0;
-        let maxHeuristic = -1;
-
-        for (let i = 0; i < 6; i++) {
-          const testHand = newHand.filter((_, idx) => idx !== i);
-          const counts = new Array(7).fill(0);
-          for (const t of testHand) {
-            counts[t.top]++;
-            counts[t.bottom]++;
-          }
-          const h = Math.max(...counts);
-          const isStar = newHand[i].isStar ? 0 : 1;
-          const score = h * 10 + isStar;
-          if (score > maxHeuristic) {
-            maxHeuristic = score;
-            bestDiscardIdx = i;
+        
+        if (bot.isRiichi) {
+          bestDiscardIdx = 5; // Auto-discard the drawn tile
+        } else {
+          let maxHeuristic = -1;
+          for (let i = 0; i < 6; i++) {
+            const testHand = newHand.filter((_, idx) => idx !== i);
+            const tenpai = isTenpai(testHand, enabledRules);
+            
+            const counts = new Array(7).fill(0);
+            for (const t of testHand) {
+              counts[t.top]++;
+              counts[t.bottom]++;
+            }
+            const h = Math.max(...counts);
+            const isStar = newHand[i].isStar ? 0 : 1;
+            const score = (tenpai ? 1000 : 0) + h * 10 + isStar;
+            
+            if (score > maxHeuristic) {
+              maxHeuristic = score;
+              bestDiscardIdx = i;
+            }
           }
         }
 
@@ -608,7 +624,23 @@ export default function App() {
         const discardedTile = newHand[bestDiscardIdx];
         const finalHand = newHand.filter((_, idx) => idx !== bestDiscardIdx);
         
-        updatePlayerHand(currentPlayerIndex, finalHand);
+        let isDeclaringRiichi = false;
+        if (enabledRules.riichi && !bot.isRiichi && isTenpai(finalHand, { ...enabledRules, threeColors: false })) {
+          isDeclaringRiichi = true;
+          soundService.playRiichi();
+          addLog('RIICHI', currentPlayerIndex);
+        }
+        
+        setPlayers(prev => {
+          const next = [...prev];
+          next[currentPlayerIndex] = { 
+            ...next[currentPlayerIndex], 
+            hand: finalHand,
+            isRiichi: bot.isRiichi || isDeclaringRiichi
+          };
+          return next;
+        });
+        
         setFieldFaceUp(prev => [...prev, discardedTile]);
         addLog('DISCARD', currentPlayerIndex);
         nextTurn();
@@ -892,7 +924,7 @@ export default function App() {
           
           <div className="flex gap-2 mb-4 mt-6">
             {players[0]?.hand.map((tile, idx) => {
-              const canRiichi = enabledRules.riichi && phase === 'DISCARD' && currentPlayerIndex === 0 && !players[0].isRiichi && selectedTileIndex === idx && players[0].hand.length === 6 && isTenpai(players[0].hand.filter((_, i) => i !== idx), enabledRules);
+              const canRiichi = enabledRules.riichi && phase === 'DISCARD' && currentPlayerIndex === 0 && !players[0].isRiichi && selectedTileIndex === idx && players[0].hand.length === 6 && isTenpai(players[0].hand.filter((_, i) => i !== idx), { ...enabledRules, threeColors: false });
               
               return (
                 <div key={tile.id} className="relative">
