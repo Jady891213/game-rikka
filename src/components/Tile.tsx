@@ -100,7 +100,7 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
       {onFlip && !isMini && (
         <div 
           onClick={(e) => { e.stopPropagation(); onFlip(); }}
-          className="absolute left-1 top-1/2 -translate-y-1/2 bg-emerald-700/90 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-emerald-500 z-20"
+          className={`absolute left-1 top-1/2 -translate-y-1/2 bg-emerald-700/90 text-white rounded-full p-1 transition-opacity shadow-md hover:bg-emerald-500 z-20 ${isSelected ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'}`}
         >
           <ArrowUpDown size={14} />
         </div>

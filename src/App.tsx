@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { TileData, generateDeck, checkWin, WinResult, isTenpai, ExtendedRules } from './gameLogic';
 import { Tile } from './components/Tile';
-import { RefreshCw, Play, Trophy, User, Bot, Book, ChevronDown, ChevronUp, Volume2, VolumeX } from 'lucide-react';
+import { RefreshCw, Play, Trophy, User, Bot, Book, ChevronDown, ChevronUp, Volume2, VolumeX, X } from 'lucide-react';
 import { soundService } from './utils/audio';
 
 type ScoreHistory = {
@@ -799,61 +799,10 @@ export default function App() {
       <main className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
         
         {/* Rules Panel */}
-        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-50">
-          <button onClick={() => setIsRulesOpen(!isRulesOpen)} className="bg-emerald-800 hover:bg-emerald-700 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors">
-            <Book size={16} /> {isRulesOpen ? t[lang].hideRules : t[lang].showRules}
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-20">
+          <button onClick={() => setIsRulesOpen(true)} className="bg-emerald-800 hover:bg-emerald-700 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors">
+            <Book size={16} /> {t[lang].showRules}
           </button>
-          {isRulesOpen && (
-            <div className="mt-2 w-[90vw] md:w-[760px] max-w-full max-h-[75vh] overflow-y-auto bg-emerald-950/95 border border-emerald-700 rounded-lg p-4 md:p-6 shadow-2xl text-[10px] md:text-xs flex flex-col gap-4 backdrop-blur-sm">
-              <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-                <div className="flex-1 flex flex-col gap-4">
-                  {rulesData.filter(r => r.id !== 'sandui' && r.id !== 'sanshoku' && r.id !== 'kuikou' && r.id !== 'musou').map(r => (
-                    <div key={r.id} className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
-                        <div className="flex gap-0.5">
-                          {r.example.map((ex, i) => (
-                            <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
-                    </div>
-                  ))}
-                  <div className="mt-auto pt-4 border-t border-emerald-800 text-yellow-200 flex items-start gap-1">
-                    <StarIcon className="mt-0.5 shrink-0" />
-                    <div>
-                      <span className="font-bold text-yellow-400">{t[lang].starBonus}</span> 
-                      {lang === 'zh' ? (
-                        <>完成牌型后，手牌中每有1个<StarIcon/>额外加1分（辉光除外）。</>
-                      ) : (
-                        <>+1 pt for each <StarIcon/> in a winning hand (except Kuikou).</>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col gap-4">
-                  {rulesData.filter(r => r.id === 'sandui' || r.id === 'sanshoku' || r.id === 'kuikou' || r.id === 'musou').map(r => {
-                    const isDisabled = r.ruleKey && !enabledRules[r.ruleKey as keyof ExtendedRules];
-                    return (
-                      <div key={r.id} className={`flex flex-col gap-1 ${isDisabled ? 'opacity-30 grayscale' : ''}`}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
-                          <div className="flex gap-0.5">
-                            {r.example.map((ex, i) => (
-                              <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
-                            ))}
-                          </div>
-                          {isDisabled && <span className="text-red-400 text-[10px] border border-red-400/50 rounded px-1 ml-auto">{lang === 'zh' ? '未启用' : 'Disabled'}</span>}
-                        </div>
-                        <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Deck */}
@@ -980,7 +929,12 @@ export default function App() {
                     onMouseEnter={() => soundService.playHover()}
                     onClick={() => {
                       if (players[0].isRiichi) return;
-                      setSelectedTileIndex(idx === selectedTileIndex ? null : idx);
+                      if (selectedTileIndex === idx && phase === 'DISCARD' && currentPlayerIndex === 0) {
+                        // Double tap / tap again to discard on mobile
+                        handleDiscard(idx);
+                      } else {
+                        setSelectedTileIndex(idx);
+                      }
                     }}
                     onDoubleClick={() => {
                       if (players[0].isRiichi) return;
@@ -1022,6 +976,64 @@ export default function App() {
       </div>
 
       {/* Modals */}
+      {isRulesOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setIsRulesOpen(false)}>
+          <div className="bg-emerald-950 border-2 border-emerald-600 rounded-2xl p-4 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setIsRulesOpen(false)} className="absolute top-3 right-3 md:top-4 md:right-4 text-emerald-400 hover:text-white bg-emerald-900 hover:bg-emerald-700 p-2 rounded-full transition-colors">
+              <X size={20} />
+            </button>
+            <h2 className="text-2xl font-bold text-yellow-400 mb-4 md:mb-6 text-center">{t[lang].rulesTitle}</h2>
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8 text-xs md:text-sm">
+              <div className="flex-1 flex flex-col gap-4">
+                {rulesData.filter(r => r.id !== 'sandui' && r.id !== 'sanshoku' && r.id !== 'kuikou' && r.id !== 'musou').map(r => (
+                  <div key={r.id} className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
+                      <div className="flex gap-0.5">
+                        {r.example.map((ex, i) => (
+                          <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
+                  </div>
+                ))}
+                <div className="mt-auto pt-4 border-t border-emerald-800 text-yellow-200 flex items-start gap-1">
+                  <StarIcon className="mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-bold text-yellow-400">{t[lang].starBonus}</span> 
+                    {lang === 'zh' ? (
+                      <>完成牌型后，手牌中每有1个<StarIcon/>额外加1分（辉光除外）。</>
+                    ) : (
+                      <>+1 pt for each <StarIcon/> in a winning hand (except Kuikou).</>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col gap-4">
+                {rulesData.filter(r => r.id === 'sandui' || r.id === 'sanshoku' || r.id === 'kuikou' || r.id === 'musou').map(r => {
+                  const isDisabled = r.ruleKey && !enabledRules[r.ruleKey as keyof ExtendedRules];
+                  return (
+                    <div key={r.id} className={`flex flex-col gap-1 ${isDisabled ? 'opacity-30 grayscale' : ''}`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
+                        <div className="flex gap-0.5">
+                          {r.example.map((ex, i) => (
+                            <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
+                          ))}
+                        </div>
+                        {isDisabled && <span className="text-red-400 text-[10px] border border-red-400/50 rounded px-1 ml-auto">{lang === 'zh' ? '未启用' : 'Disabled'}</span>}
+                      </div>
+                      <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {phase === 'ROUND_END' && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-emerald-900 border-2 border-yellow-500 rounded-2xl p-8 max-w-lg w-full flex flex-col items-center text-center shadow-2xl">
@@ -1030,8 +1042,13 @@ export default function App() {
             
             {winnerInfo ? (
               <div className="flex flex-col gap-4 w-full">
-                <div className="bg-emerald-800 p-4 rounded-xl">
+                <div className="bg-emerald-800 p-4 rounded-xl flex flex-col items-center gap-3">
                   <div className="text-xl font-bold text-yellow-400">{getPlayerName(winnerInfo.player.id)} {t[lang].wins}!</div>
+                  <div className="flex gap-1 md:gap-2 justify-center bg-emerald-900/50 p-2 md:p-3 rounded-lg">
+                    {winnerInfo.player.hand.map((tile, i) => (
+                      <Tile key={i} tile={tile} size="mini" className="scale-110 md:scale-125 mx-1 md:mx-2" />
+                    ))}
+                  </div>
                   <div className="text-lg">{getHandTypeName(winnerInfo.win.type, lang)} (+{winnerInfo.win.score} {t[lang].pts})</div>
                 </div>
                 
@@ -1039,9 +1056,16 @@ export default function App() {
                   <div className="flex flex-col gap-2">
                     <div className="text-sm text-emerald-300 uppercase tracking-wider">{t[lang].tenpaiWinners}</div>
                     {winnerInfo.tenpaiWinners.map((tw, i) => (
-                      <div key={i} className="bg-emerald-800/50 p-2 rounded-lg flex justify-between px-4">
-                        <span>{getPlayerName(tw.player.id)}</span>
-                        <span className="text-yellow-400">+{tw.win.score} {t[lang].pts}</span>
+                      <div key={i} className="bg-emerald-800/50 p-2 rounded-lg flex flex-col items-center gap-2 px-4">
+                        <div className="flex justify-between w-full">
+                          <span>{getPlayerName(tw.player.id)}</span>
+                          <span className="text-yellow-400">+{tw.win.score} {t[lang].pts}</span>
+                        </div>
+                        <div className="flex gap-1 justify-center scale-90">
+                          {tw.player.hand.map((tile, j) => (
+                            <Tile key={j} tile={tile} size="mini" />
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
