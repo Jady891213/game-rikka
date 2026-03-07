@@ -390,15 +390,6 @@ export default function App() {
     handleDiscard();
   };
 
-  const handleFlip = (idx: number) => {
-    if (players[currentPlayerIndex].isBot || players[currentPlayerIndex].isRiichi) return;
-    
-    const hand = [...players[currentPlayerIndex].hand];
-    const tile = hand[idx];
-    hand[idx] = { ...tile, top: tile.bottom, bottom: tile.top };
-    updatePlayerHand(currentPlayerIndex, hand);
-  };
-
   const handleSort = () => {
     if (!players[0] || players[0].hand.length === 0 || players[0].isRiichi) return;
     
@@ -805,85 +796,91 @@ export default function App() {
           </button>
         </div>
 
-        {/* Deck */}
-        <div className="w-full md:w-48 h-28 md:h-auto shrink-0 border-b md:border-b-0 md:border-r border-emerald-800/50 p-4 md:p-8 flex flex-row md:flex-col items-center justify-center gap-6 md:gap-0 bg-emerald-900/20">
-          <div className="text-emerald-300 text-xs md:text-sm font-semibold uppercase tracking-widest md:mb-8">{t[lang].deck} ({fieldFaceDown.length})</div>
-          <div className="relative w-12 h-24 md:w-24 md:h-32 cursor-pointer hover:scale-105 transition-transform" onClick={handleDrawFaceDown}>
-            {fieldFaceDown.slice(0, 5).map((_, i) => (
-              <Tile key={i} tile={_} isFaceDown className="absolute" style={{ top: -i * 2, left: -i * 2 }} />
-            ))}
-            {phase === 'DRAW' && !players[currentPlayerIndex].isBot && (
-              <div className="absolute inset-0 ring-4 ring-yellow-400 rounded animate-pulse" />
-            )}
+        {/* Left Spacer for Symmetry on PC */}
+        <div className="hidden md:block md:w-48 h-full shrink-0 border-r border-emerald-800/50 bg-emerald-900/20 pointer-events-none"></div>
+
+        {/* Field */}
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-emerald-900/40 flex flex-col items-center">
+          <div className="w-full max-w-4xl">
+            <div className="text-emerald-300 text-xs md:text-sm font-semibold uppercase tracking-widest mb-4 text-center md:text-left">{t[lang].field}</div>
+            <div className="flex flex-wrap content-start justify-center md:justify-start gap-2 md:gap-3">
+              {fieldFaceUp.map(tile => (
+                <Tile 
+                  key={tile.id} 
+                  tile={tile} 
+                  isWinningTile={winningTileIds.has(tile.id)}
+                  className="scale-90 origin-top-left"
+                  onClick={() => handleDrawFaceUp(tile)}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Field */}
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-emerald-900/40">
-          <div className="text-emerald-300 text-xs md:text-sm font-semibold uppercase tracking-widest mb-4">{t[lang].field}</div>
-          <div className="flex flex-wrap content-start gap-2 md:gap-3">
-            {fieldFaceUp.map(tile => (
-              <Tile 
-                key={tile.id} 
-                tile={tile} 
-                isWinningTile={winningTileIds.has(tile.id)}
-                className="scale-90 origin-top-left"
-                onClick={() => handleDrawFaceUp(tile)}
-              />
-            ))}
+        {/* Deck */}
+        <div className="absolute bottom-2 right-2 md:static md:w-48 md:h-auto shrink-0 md:border-l border-emerald-800/50 p-2 md:p-8 flex flex-col items-end md:items-center justify-end md:justify-center gap-2 md:gap-8 bg-transparent md:bg-emerald-900/20 pointer-events-none md:pointer-events-auto z-10">
+          <div className="pointer-events-auto flex flex-col items-end md:items-center">
+            <div className="text-emerald-300 text-[10px] md:text-sm font-semibold uppercase tracking-widest mb-2 md:mb-8 bg-emerald-900/80 md:bg-transparent px-2 py-1 rounded">{t[lang].deck} ({fieldFaceDown.length})</div>
+            <div className="relative w-10 h-20 md:w-14 md:h-28 cursor-pointer hover:scale-105 transition-transform" onClick={handleDrawFaceDown}>
+              {fieldFaceDown.slice(0, 5).map((_, i) => (
+                <Tile key={i} tile={_} isFaceDown className="absolute" style={{ top: -i * 2, left: -i * 2 }} />
+              ))}
+              {phase === 'DRAW' && !players[currentPlayerIndex].isBot && (
+                <div className="absolute inset-0 ring-4 ring-yellow-400 rounded animate-pulse" />
+              )}
+              
+              {/* Draw button floating above deck, overlapping bottom edge */}
+              {phase === 'DRAW' && currentPlayerIndex === 0 && !players[0].isRiichi && (
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 pointer-events-auto">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDrawFaceDown(); }}
+                    className="px-4 py-2 md:px-6 md:py-3 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 rounded-full font-black text-xs md:text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 flex items-center gap-1 md:gap-2 animate-bounce whitespace-nowrap"
+                  >
+                    <Play size={14} className="fill-current md:w-4 md:h-4" />
+                    {lang === 'zh' ? '点击摸牌' : 'Draw Tile'}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
 
       {/* Player Hand */}
-      <div className="bg-emerald-950 p-2 md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 border-t border-emerald-800 h-auto md:h-56">
+      <div className="bg-emerald-950 p-2 md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 border-t border-emerald-800 h-auto md:h-64 relative">
         
-        {/* Mobile Top Bar */}
-        <div className="flex flex-row w-full justify-between md:hidden mb-1 px-2">
-          <div className="relative z-30">
-            <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] font-bold bg-emerald-800 px-2 py-1 rounded text-emerald-300 uppercase tracking-wider">
-              {t[lang].log} {isLogsOpen ? <ChevronDown size={12}/> : <ChevronUp size={12}/>}
-            </button>
-            {isLogsOpen && (
-              <div className="absolute bottom-full left-0 mb-2 w-64 bg-emerald-900/95 border border-emerald-700 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm">
-                <div className="flex flex-col gap-1 text-[10px]">
-                  {logs.map((log, i) => (
-                    <div key={i} className="text-emerald-200/80 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
-                      {renderLog(log)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          <button 
+        {/* Top Bar (Mobile & Desktop) */}
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-30 flex gap-2">
+           <button 
             onClick={handleSort}
             disabled={players[0]?.isRiichi}
-            className={`px-3 py-1 rounded font-semibold transition-colors text-xs shadow-md ${players[0]?.isRiichi ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
+            className={`px-3 py-1 md:px-4 md:py-2 rounded font-semibold transition-colors text-xs md:text-sm shadow-md ${players[0]?.isRiichi ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
           >
             {t[lang].sort}
           </button>
         </div>
 
-        {/* Logs (Desktop) */}
-        <div className="hidden md:flex w-48 shrink-0 flex-col bg-emerald-900/50 rounded p-2 border border-emerald-800/50">
-          <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsLogsOpen(!isLogsOpen)}>
-            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{t[lang].log}</span>
-            {isLogsOpen ? <ChevronDown size={14} className="text-emerald-500"/> : <ChevronUp size={14} className="text-emerald-500"/>}
-          </div>
+        {/* Logs (Mobile & Desktop) */}
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-30">
+          <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] md:text-xs font-bold bg-emerald-800 px-2 py-1 md:px-3 md:py-1.5 rounded text-emerald-300 uppercase tracking-wider transition-colors hover:bg-emerald-700">
+            {t[lang].log} {isLogsOpen ? <ChevronDown size={14}/> : <ChevronUp size={14}/>}
+          </button>
           {isLogsOpen && (
-            <div className="mt-2 flex flex-col gap-1 overflow-y-auto max-h-40 text-[10px] pr-1">
-              {logs.map((log, i) => (
-                <div key={i} className="text-emerald-200/70 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
-                  {renderLog(log)}
-                </div>
-              ))}
+            <div className="absolute bottom-full md:bottom-auto md:top-full left-0 mb-2 md:mb-0 md:mt-2 w-64 bg-emerald-900/95 border border-emerald-700 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm">
+              <div className="flex flex-col gap-1 text-[10px] md:text-xs">
+                {logs.map((log, i) => (
+                  <div key={i} className="text-emerald-200/80 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
+                    {renderLog(log)}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* Hand Tiles */}
         <div className="flex-1 flex flex-col items-center justify-end w-full pb-1 md:pb-2 relative">
+
           {currentWinOption && phase === 'DISCARD' && currentPlayerIndex === 0 && (
             <div className="absolute right-2 md:right-8 top-0 md:top-1/2 md:-translate-y-1/2 flex flex-col items-center gap-1 md:gap-2 animate-bounce z-40">
               <button
@@ -899,24 +896,24 @@ export default function App() {
             </div>
           )}
           
-          <div className="flex gap-1 md:gap-2 mb-2 md:mb-4 mt-2 md:mt-6">
+          <div className="flex gap-2 md:gap-4 mb-2 md:mb-4 mt-6 md:mt-10">
             {players[0]?.hand.map((tile, idx) => {
               const canRiichi = enabledRules.riichi && phase === 'DISCARD' && currentPlayerIndex === 0 && !players[0].isRiichi && selectedTileIndex === idx && players[0].hand.length === 6 && isTenpai(players[0].hand.filter((_, i) => i !== idx), { ...enabledRules, threeColors: false });
               
               return (
                 <div key={tile.id} className="relative">
                   {selectedTileIndex === idx && phase === 'DISCARD' && !players[0].isBot && !players[0].isRiichi && (
-                    <div className="absolute -top-8 md:-top-10 left-1/2 -translate-x-1/2 flex gap-1 md:gap-2 z-30">
+                    <div className="absolute -top-10 md:-top-12 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3 z-30">
                       <button
                         onClick={() => handleDiscard()}
-                        className="bg-red-600 hover:bg-red-500 text-white text-[10px] md:text-xs font-bold py-1 px-2 md:py-1.5 md:px-3 rounded shadow-lg whitespace-nowrap"
+                        className="bg-red-600 hover:bg-red-500 text-white text-xs md:text-sm font-bold py-1.5 px-3 md:py-2 md:px-4 rounded shadow-lg whitespace-nowrap"
                       >
                         {t[lang].discard}
                       </button>
                       {canRiichi && (
                         <button
                           onClick={handleRiichi}
-                          className="bg-purple-600 hover:bg-purple-500 text-white text-[10px] md:text-xs font-bold py-1 px-2 md:py-1.5 md:px-3 rounded shadow-lg whitespace-nowrap animate-pulse"
+                          className="bg-purple-600 hover:bg-purple-500 text-white text-xs md:text-sm font-bold py-1.5 px-3 md:py-2 md:px-4 rounded shadow-lg whitespace-nowrap animate-pulse"
                         >
                           {lang === 'zh' ? '立直' : 'Riichi'}
                         </button>
@@ -925,6 +922,7 @@ export default function App() {
                   )}
                   <Tile 
                     tile={tile} 
+                    size="large"
                     isSelected={selectedTileIndex === idx}
                     onMouseEnter={() => soundService.playHover()}
                     onClick={() => {
@@ -942,7 +940,6 @@ export default function App() {
                         handleDiscard(idx);
                       }
                     }}
-                    onFlip={() => handleFlip(idx)}
                   />
                 </div>
               );
@@ -961,17 +958,6 @@ export default function App() {
               </>
             )}
           </div>
-        </div>
-
-        {/* Actions (Desktop) */}
-        <div className="hidden md:flex w-48 shrink-0 flex-col justify-end h-full pb-8 gap-2">
-          <button 
-            onClick={handleSort}
-            disabled={players[0]?.isRiichi}
-            className={`px-4 py-2 rounded font-semibold transition-colors text-sm shadow-md ${players[0]?.isRiichi ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
-          >
-            {t[lang].sort}
-          </button>
         </div>
       </div>
 

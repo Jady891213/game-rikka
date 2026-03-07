@@ -19,9 +19,8 @@ interface TileProps {
   onClick?: () => void;
   onDoubleClick?: () => void;
   onMouseEnter?: () => void;
-  onFlip?: () => void;
   className?: string;
-  size?: 'normal' | 'mini';
+  size?: 'normal' | 'large' | 'mini';
 }
 
 const PetalPattern = ({ num }: { num: number }) => {
@@ -57,17 +56,30 @@ const PetalPattern = ({ num }: { num: number }) => {
   );
 };
 
-export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinningTile, onClick, onDoubleClick, onMouseEnter, onFlip, className = '', size = 'normal' }) => {
+export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinningTile, onClick, onDoubleClick, onMouseEnter, className = '', size = 'normal' }) => {
   const isMini = size === 'mini';
+  const isLarge = size === 'large';
   
+  const sizeClasses = isMini 
+    ? 'w-6 h-12' 
+    : isLarge 
+      ? 'w-12 h-24 sm:w-14 sm:h-28 md:w-16 md:h-32'
+      : 'w-10 h-20 sm:w-12 sm:h-24 md:w-14 md:h-28';
+
+  const innerSizeClasses = isMini
+    ? 'w-4 h-10'
+    : isLarge
+      ? 'w-8 h-20 sm:w-10 sm:h-24 md:w-12 md:h-28'
+      : 'w-6 h-16 sm:w-8 sm:h-20 md:w-10 md:h-24';
+
   if (isFaceDown) {
     return (
       <div 
         onClick={onClick}
         onMouseEnter={onMouseEnter}
-        className={`${isMini ? 'w-6 h-12 border' : 'w-10 h-20 sm:w-12 sm:h-24 md:w-14 md:h-28 border-2'} bg-emerald-800 border-emerald-600 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
+        className={`${sizeClasses} ${isMini ? 'border' : 'border-2'} bg-emerald-800 border-emerald-600 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
       >
-        <div className={`${isMini ? 'w-4 h-10' : 'w-6 h-16 sm:w-8 sm:h-20'} border border-emerald-500/30 rounded-sm opacity-50`} />
+        <div className={`${innerSizeClasses} border border-emerald-500/30 rounded-sm opacity-50`} />
       </div>
     );
   }
@@ -80,7 +92,7 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onMouseEnter={onMouseEnter}
-      className={`relative group ${isMini ? 'w-6 h-12' : 'w-10 h-20 sm:w-12 sm:h-24 md:w-14 md:h-28'} bg-white rounded shadow-md flex flex-col cursor-pointer transition-all duration-200 ${isMini ? '' : selectedClass} ${highlightClass} ${className}`}
+      className={`relative group ${sizeClasses} bg-white rounded shadow-md flex flex-col cursor-pointer transition-all duration-200 ${isMini ? '' : selectedClass} ${highlightClass} ${className}`}
     >
       <div className="flex-1 flex items-center justify-center overflow-hidden">
         <PetalPattern num={tile.top} />
@@ -94,15 +106,6 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
           <svg width={isMini ? "8" : "14"} height={isMini ? "8" : "14"} viewBox="0 0 100 100">
             <polygon points="50,5 63,27.5 89,27.5 76,50 89,72.5 63,72.5 50,95 37,72.5 11,72.5 24,50 11,27.5 37,27.5" fill={tileColors[tile.top]} stroke="#fff" strokeWidth="8" />
           </svg>
-        </div>
-      )}
-
-      {onFlip && !isMini && (
-        <div 
-          onClick={(e) => { e.stopPropagation(); onFlip(); }}
-          className={`absolute left-1 top-1/2 -translate-y-1/2 bg-emerald-700/90 text-white rounded-full p-1 transition-opacity shadow-md hover:bg-emerald-500 z-20 ${isSelected ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'}`}
-        >
-          <ArrowUpDown size={14} />
         </div>
       )}
     </div>
