@@ -927,12 +927,7 @@ export default function App() {
                     onMouseEnter={() => soundService.playHover()}
                     onClick={() => {
                       if (players[0].isRiichi) return;
-                      if (selectedTileIndex === idx && phase === 'DISCARD' && currentPlayerIndex === 0) {
-                        // Double tap / tap again to discard on mobile
-                        handleDiscard(idx);
-                      } else {
-                        setSelectedTileIndex(idx);
-                      }
+                      setSelectedTileIndex(idx);
                     }}
                     onDoubleClick={() => {
                       if (players[0].isRiichi) return;
