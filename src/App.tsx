@@ -250,7 +250,7 @@ export default function App() {
     if (!players[0] || players[0].hand.length !== 5) return new Set<string>();
     const wins = new Set<string>();
     fieldFaceUp.forEach(t => {
-      if (checkWin([...players[0].hand, t], true, enabledRules)) wins.add(t.id);
+      if (checkWin([...players[0].hand, t], false, enabledRules)) wins.add(t.id);
     });
     return wins;
   }, [players[0]?.hand, fieldFaceUp]);
@@ -321,7 +321,7 @@ export default function App() {
     
     if (players[currentPlayerIndex].isRiichi) {
       const testHand = [...players[currentPlayerIndex].hand, tile];
-      if (!checkWin(testHand, true, enabledRules)) {
+      if (!checkWin(testHand, false, enabledRules)) {
         return; // Disallow drawing from field if in Riichi and it's not a win
       }
     }
@@ -332,7 +332,7 @@ export default function App() {
     updatePlayerHand(currentPlayerIndex, newHand);
     setPhase('DISCARD');
     addLog('DRAW_FIELD', currentPlayerIndex);
-    checkPlayerWin(newHand, true);
+    checkPlayerWin(newHand, false);
   };
 
   const checkPlayerWin = (hand: TileData[], isPassive: boolean) => {
@@ -453,7 +453,7 @@ export default function App() {
     if (phase === 'ROUND_END' || phase === 'GAME_OVER' || winnerInfo !== null || isProcessingWin.current) return;
     isProcessingWin.current = true;
     soundService.playWin();
-    const winner = players[winnerIdx];
+    const winner = { ...players[winnerIdx], hand: winningHand };
     
     // Add Riichi bonus
     let finalScore = winResult.score;
@@ -530,7 +530,7 @@ export default function App() {
         let bestFaceUpScore = -1;
         for (const t of fieldFaceUp) {
           const testHand = [...bot.hand, t];
-          const win = checkWin(testHand, true, enabledRules);
+          const win = checkWin(testHand, false, enabledRules);
           if (win && win.score > bestFaceUpScore) {
             bestFaceUpScore = win.score;
             bestFaceUpTile = t;
@@ -575,7 +575,7 @@ export default function App() {
         const newHand = [...bot.hand, drawnTile];
         updatePlayerHand(currentPlayerIndex, newHand);
         
-        const win = checkWin(newHand, !!bestFaceUpTile, enabledRules);
+        const win = checkWin(newHand, false, enabledRules);
         if (win) {
           handleWin(currentPlayerIndex, newHand, win);
           return;
