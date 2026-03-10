@@ -3,13 +3,30 @@ import { motion } from 'motion/react';
 
 export const Firework = ({ delay = 0, x = '50%', y = '50%', scale = 1 }: { delay?: number, x?: string | number, y?: string | number, scale?: number }) => {
   const [stage, setStage] = useState<'hidden' | 'trail' | 'explode'>('hidden');
+  const [iteration, setIteration] = useState(0);
 
   useEffect(() => {
-    const trailTimer = setTimeout(() => setStage('trail'), delay * 1000);
-    const explodeTimer = setTimeout(() => setStage('explode'), delay * 1000 + 600);
+    let trailTimer: NodeJS.Timeout;
+    let explodeTimer: NodeJS.Timeout;
+    let loopTimer: NodeJS.Timeout;
+
+    const runAnimation = () => {
+      setStage('hidden');
+      setIteration(i => i + 1);
+      trailTimer = setTimeout(() => setStage('trail'), 50);
+      explodeTimer = setTimeout(() => setStage('explode'), 650);
+    };
+
+    const initialTimer = setTimeout(() => {
+      runAnimation();
+      loopTimer = setInterval(runAnimation, 3500); // Repeat every 3.5 seconds
+    }, delay * 1000);
+
     return () => {
+      clearTimeout(initialTimer);
       clearTimeout(trailTimer);
       clearTimeout(explodeTimer);
+      clearInterval(loopTimer);
     };
   }, [delay]);
 
@@ -25,6 +42,7 @@ export const Firework = ({ delay = 0, x = '50%', y = '50%', scale = 1 }: { delay
 
   return (
     <div 
+      key={iteration}
       className="absolute pointer-events-none z-50 flex flex-col items-center justify-end" 
       style={{ left: x, top: y, transform: `translate(-50%, -50%) scale(${scale})`, width: 200, height: 300 }}
     >

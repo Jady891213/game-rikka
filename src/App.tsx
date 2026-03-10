@@ -1018,7 +1018,7 @@ export default function App() {
 
       {phase === 'ROUND_END' && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-hidden">
-          {winnerInfo && (
+          {winnerInfo && winnerInfo.player.id === 0 && (
             <>
               <Firework delay={0.1} x="20%" y="30%" scale={0.8} />
               <Firework delay={0.5} x="80%" y="40%" scale={1} />
@@ -1086,11 +1086,15 @@ export default function App() {
 
       {phase === 'GAME_OVER' && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-hidden">
-          <Firework delay={0.1} x="20%" y="30%" scale={0.8} />
-          <Firework delay={0.5} x="80%" y="40%" scale={1} />
-          <Firework delay={0.9} x="30%" y="70%" scale={0.6} />
-          <Firework delay={1.2} x="70%" y="80%" scale={0.9} />
-          <Firework delay={1.6} x="50%" y="20%" scale={1.2} />
+          {[...players].sort((a, b) => b.score - a.score)[0].id === 0 && (
+            <>
+              <Firework delay={0.1} x="20%" y="30%" scale={0.8} />
+              <Firework delay={0.5} x="80%" y="40%" scale={1} />
+              <Firework delay={0.9} x="30%" y="70%" scale={0.6} />
+              <Firework delay={1.2} x="70%" y="80%" scale={0.9} />
+              <Firework delay={1.6} x="50%" y="20%" scale={1.2} />
+            </>
+          )}
           <div className="bg-slate-800 border-2 border-yellow-500 rounded-2xl p-8 max-w-lg w-full flex flex-col items-center text-center shadow-2xl relative z-10">
             <Trophy size={64} className="text-yellow-400 mb-4" />
             <h2 className="text-4xl font-bold mb-6 text-yellow-400">{t[lang].gameOver}</h2>
