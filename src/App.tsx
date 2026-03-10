@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { TileData, generateDeck, checkWin, WinResult, isTenpai, ExtendedRules } from './gameLogic';
 import { Tile } from './components/Tile';
+import { Firework } from './components/Firework';
 import { RefreshCw, Play, Trophy, User, Bot, Book, ChevronDown, ChevronUp, Volume2, VolumeX, X } from 'lucide-react';
 import { soundService } from './utils/audio';
 
@@ -646,20 +647,20 @@ export default function App() {
 
   if (phase === 'START') {
     return (
-      <div className="min-h-screen bg-emerald-900 text-white flex flex-col items-center justify-center p-4 relative">
+      <div className="min-h-screen bg-slate-700 text-white flex flex-col items-center justify-center p-4 relative">
         <div className="absolute top-4 right-4 flex gap-2">
-          <button onClick={toggleMute} className="p-2 bg-emerald-800 rounded border border-emerald-600 text-emerald-400 hover:bg-emerald-700 hover:text-white transition-colors">
+          <button onClick={toggleMute} className="p-2 bg-slate-600 rounded border border-slate-400 text-slate-200 hover:bg-slate-500 hover:text-white transition-colors">
             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
-          <div className="flex bg-emerald-800 rounded overflow-hidden border border-emerald-600">
-            <button onClick={() => setLang('zh')} className={`px-3 py-1 text-sm font-bold ${lang === 'zh' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-700'}`}>中</button>
-            <button onClick={() => setLang('en')} className={`px-3 py-1 text-sm font-bold ${lang === 'en' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-700'}`}>EN</button>
+          <div className="flex bg-slate-700 rounded overflow-hidden border border-slate-500">
+            <button onClick={() => setLang('zh')} className={`px-3 py-1 text-sm font-bold ${lang === 'zh' ? 'bg-slate-500 text-white' : 'text-slate-300 hover:bg-slate-600'}`}>中</button>
+            <button onClick={() => setLang('en')} className={`px-3 py-1 text-sm font-bold ${lang === 'en' ? 'bg-slate-500 text-white' : 'text-slate-300 hover:bg-slate-600'}`}>EN</button>
           </div>
         </div>
         
         <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full max-w-6xl mt-12 md:mt-0">
           {/* Left side: Grid of tiles (Hidden on mobile) */}
-          <div className="hidden md:flex flex-col gap-1 md:gap-2 bg-emerald-950/50 p-4 md:p-6 rounded-2xl border border-emerald-800/50 shadow-2xl scale-90 md:scale-100">
+          <div className="hidden md:flex flex-col gap-1 md:gap-2 bg-slate-700/50 p-4 md:p-6 rounded-2xl border border-slate-700/50 shadow-2xl scale-90 md:scale-100">
             {[1, 2, 3, 4, 5, 6].map(row => (
               <div key={`row-${row}`} className="flex gap-1 md:gap-2">
                 {[1, 2, 3, 4, 5, 6].map(col => (
@@ -667,7 +668,7 @@ export default function App() {
                 ))}
               </div>
             ))}
-            <div className="flex gap-1 md:gap-2 mt-4 pt-4 border-t border-emerald-800/50">
+            <div className="flex gap-1 md:gap-2 mt-4 pt-4 border-t border-slate-700/50">
               {[1, 2, 3, 4, 5, 6].map(col => (
                 <Tile key={`star-${col}`} tile={{ id: `s-${col}`, top: col, bottom: col, isStar: true }} size="mini" />
               ))}
@@ -675,18 +676,18 @@ export default function App() {
           </div>
 
           {/* Right side: Start Menu */}
-          <div className="flex flex-col items-center bg-emerald-950/30 p-6 md:p-12 rounded-3xl border border-emerald-800/30 w-full max-w-md">
+          <div className="flex flex-col items-center bg-slate-700/30 p-6 md:p-12 rounded-3xl border border-slate-700/30 w-full max-w-md">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 md:mb-8 text-yellow-400 drop-shadow-lg text-center">{t[lang].title}</h1>
-            <p className="text-sm md:text-xl mb-8 md:mb-12 max-w-md text-center text-emerald-100">{t[lang].subtitle}</p>
+            <p className="text-sm md:text-xl mb-8 md:mb-12 max-w-md text-center text-slate-50">{t[lang].subtitle}</p>
             
             <div className="flex flex-col items-center gap-2 md:gap-4 mb-6 md:mb-8">
-              <div className="text-emerald-200 font-semibold tracking-wider text-sm md:text-base">{lang === 'zh' ? '选择人数' : 'Select Players'}</div>
+              <div className="text-slate-50 font-semibold tracking-wider text-sm md:text-base">{lang === 'zh' ? '选择人数' : 'Select Players'}</div>
               <div className="flex gap-2 md:gap-4">
                 {[2, 3, 4, 5].map(num => (
                   <button
                     key={num}
                     onClick={() => setPlayerCount(num)}
-                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold transition-all ${playerCount === num ? 'bg-yellow-500 text-emerald-900 ring-4 ring-yellow-400/50 scale-110' : 'bg-emerald-800 text-emerald-300 hover:bg-emerald-700'}`}
+                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold transition-all ${playerCount === num ? 'bg-yellow-500 text-slate-800 ring-4 ring-yellow-400/50 scale-110' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}
                   >
                     {num}
                   </button>
@@ -695,18 +696,18 @@ export default function App() {
             </div>
 
             <div className="flex flex-col items-center gap-2 md:gap-4 mb-8 md:mb-12">
-              <div className="text-emerald-200 font-semibold tracking-wider text-sm md:text-base">{t[lang].extendedRules}</div>
+              <div className="text-slate-100 font-semibold tracking-wider text-sm md:text-base">{t[lang].extendedRules}</div>
               <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-lg">
                 {(['riichi', 'threeColors', 'threePairs', 'radiance', 'peerless'] as const).map(rule => (
-                  <label key={rule} className={`flex items-center gap-1 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full cursor-pointer transition-colors border ${enabledRules[rule] ? 'bg-emerald-700/80 border-emerald-500' : 'bg-emerald-900/50 border-emerald-800/50 hover:bg-emerald-800/50'}`}>
+                  <label key={rule} className={`flex items-center gap-1 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full cursor-pointer transition-colors border ${enabledRules[rule] ? 'bg-slate-600/80 border-slate-300' : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50'}`}>
                     <input 
                       type="checkbox" 
                       className="hidden"
                       checked={enabledRules[rule]}
                       onChange={(e) => setEnabledRules(prev => ({ ...prev, [rule]: e.target.checked }))}
                     />
-                    <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${enabledRules[rule] ? 'bg-yellow-400' : 'bg-emerald-800'}`} />
-                    <span className={`font-medium text-xs md:text-base ${enabledRules[rule] ? 'text-emerald-100' : 'text-emerald-500'}`}>{t[lang][rule]}</span>
+                    <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${enabledRules[rule] ? 'bg-yellow-400' : 'bg-slate-700'}`} />
+                    <span className={`font-medium text-xs md:text-base ${enabledRules[rule] ? 'text-slate-50' : 'text-slate-400'}`}>{t[lang][rule]}</span>
                   </label>
                 ))}
               </div>
@@ -714,14 +715,14 @@ export default function App() {
 
             <button 
               onClick={startNewGame}
-              className="px-6 py-3 md:px-8 md:py-4 bg-yellow-500 hover:bg-yellow-400 text-emerald-900 font-bold rounded-full text-xl md:text-2xl shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+              className="px-6 py-3 md:px-8 md:py-4 bg-yellow-500 hover:bg-yellow-400 text-slate-800 font-bold rounded-full text-xl md:text-2xl shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
             >
               <Play fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" /> {t[lang].startGame}
             </button>
           </div>
         </div>
 
-        <div className="absolute bottom-4 text-emerald-500/60 text-xs md:text-sm font-medium tracking-wide">
+        <div className="absolute bottom-4 text-slate-400/60 text-xs md:text-sm font-medium tracking-wide">
           {lang === 'zh' ? '开发 by 五只乳鸽' : 'Developed by ruge'}
         </div>
       </div>
@@ -729,18 +730,18 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-emerald-900 text-white flex flex-col">
+    <div className="min-h-screen bg-slate-800 text-white flex flex-col">
       {/* Header */}
-      <header className="p-2 md:p-4 bg-emerald-950 flex flex-col md:flex-row justify-between items-center shadow-md gap-2 md:gap-0">
+      <header className="p-2 md:p-4 bg-slate-700 flex flex-col md:flex-row justify-between items-center shadow-md gap-2 md:gap-0">
         <div className="flex items-center justify-between w-full md:w-auto gap-4">
           <h1 className="text-xl md:text-2xl font-bold text-yellow-400">{t[lang].title}</h1>
           <div className="flex gap-2">
-            <button onClick={toggleMute} className="p-1.5 bg-emerald-900 rounded border border-emerald-700 text-emerald-400 hover:bg-emerald-800 hover:text-white transition-colors">
+            <button onClick={toggleMute} className="p-1.5 bg-slate-800 rounded border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
-            <div className="flex bg-emerald-900 rounded overflow-hidden border border-emerald-700">
-              <button onClick={() => setLang('zh')} className={`px-2 py-1 text-xs font-bold ${lang === 'zh' ? 'bg-emerald-700 text-white' : 'text-emerald-400 hover:bg-emerald-800'}`}>中</button>
-              <button onClick={() => setLang('en')} className={`px-2 py-1 text-xs font-bold ${lang === 'en' ? 'bg-emerald-700 text-white' : 'text-emerald-400 hover:bg-emerald-800'}`}>EN</button>
+            <div className="flex bg-slate-800 rounded overflow-hidden border border-slate-600">
+              <button onClick={() => setLang('zh')} className={`px-2 py-1 text-xs font-bold ${lang === 'zh' ? 'bg-slate-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}>中</button>
+              <button onClick={() => setLang('en')} className={`px-2 py-1 text-xs font-bold ${lang === 'en' ? 'bg-slate-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}>EN</button>
             </div>
           </div>
         </div>
@@ -749,7 +750,7 @@ export default function App() {
             <div key={p.id} className="relative">
               <div 
                 onClick={() => setOpenHistoryId(openHistoryId === p.id ? null : p.id)}
-                className={`flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 rounded cursor-pointer transition-colors ${p.id === currentPlayerIndex ? 'bg-emerald-700 ring-2 ring-yellow-400' : 'bg-emerald-800 hover:bg-emerald-700'}`}
+                className={`flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 rounded cursor-pointer transition-colors ${p.id === currentPlayerIndex ? 'bg-slate-600 ring-2 ring-yellow-400' : 'bg-slate-700 hover:bg-slate-600'}`}
               >
                 {p.isBot ? <Bot size={14} className="md:w-4 md:h-4" /> : <User size={14} className="md:w-4 md:h-4" />}
                 <span className="font-semibold text-xs md:text-base">{getPlayerName(p.id)}</span>
@@ -758,19 +759,19 @@ export default function App() {
               
               {/* History Dropdown */}
               {openHistoryId === p.id && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-emerald-950 border border-emerald-700 rounded shadow-xl z-50 p-2">
-                  <div className="text-xs font-bold text-emerald-400 mb-2 border-b border-emerald-800 pb-1">{lang === 'zh' ? '得分记录' : 'Score History'}</div>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-700 border border-slate-600 rounded shadow-xl z-50 p-2">
+                  <div className="text-xs font-bold text-slate-300 mb-2 border-b border-slate-700 pb-1">{lang === 'zh' ? '得分记录' : 'Score History'}</div>
                   {p.history.length === 0 ? (
-                    <div className="text-xs text-emerald-600 italic">{lang === 'zh' ? '暂无得分' : 'No scores yet'}</div>
+                    <div className="text-xs text-slate-500 italic">{lang === 'zh' ? '暂无得分' : 'No scores yet'}</div>
                   ) : (
                     <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-1">
                       {p.history.map((h, i) => (
-                        <div key={i} className="text-[10px] flex flex-col bg-emerald-900/50 p-1.5 rounded">
-                          <div className="flex justify-between text-emerald-200">
+                        <div key={i} className="text-[10px] flex flex-col bg-slate-800/50 p-1.5 rounded">
+                          <div className="flex justify-between text-slate-100">
                             <span>{lang === 'zh' ? `第 ${h.round} 回合` : `Round ${h.round}`}</span>
                             <span className="text-yellow-400 font-bold">+{h.score}</span>
                           </div>
-                          <div className="flex justify-between text-emerald-400/80">
+                          <div className="flex justify-between text-slate-300/80">
                             <span>{getHandTypeName(h.type, lang)} {h.isRiichi && <span className="text-yellow-400 text-[9px] ml-1">({lang === 'zh' ? '立直' : 'Riichi'} +1)</span>}</span>
                             <span>{h.isTenpai ? (lang === 'zh' ? '一牌之差' : 'Tenpai') : (lang === 'zh' ? '胡牌' : 'Win')}</span>
                           </div>
@@ -783,7 +784,7 @@ export default function App() {
             </div>
           ))}
         </div>
-        <div className="hidden md:block text-emerald-200 font-mono">{t[lang].round} {round}</div>
+        <div className="hidden md:block text-slate-100 font-mono">{t[lang].round} {round}</div>
       </header>
 
       {/* Main Game Area */}
@@ -791,19 +792,19 @@ export default function App() {
         
         {/* Top Left Controls (Rules & Logs) */}
         <div className="absolute top-2 left-2 md:top-4 md:left-4 z-30 flex flex-col gap-2">
-          <button onClick={() => setIsRulesOpen(true)} className="bg-emerald-800 hover:bg-emerald-700 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors w-fit">
+          <button onClick={() => setIsRulesOpen(true)} className="bg-slate-700 hover:bg-slate-600 px-2 py-1 md:px-3 md:py-2 rounded shadow-md flex items-center gap-1 md:gap-2 text-xs md:text-sm font-semibold transition-colors w-fit">
             <Book size={16} /> {t[lang].showRules}
           </button>
           
           <div className="relative">
-            <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] md:text-xs font-bold bg-emerald-800 px-2 py-1 md:px-3 md:py-1.5 rounded text-emerald-300 uppercase tracking-wider transition-colors hover:bg-emerald-700 w-fit">
+            <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="flex items-center gap-1 text-[10px] md:text-xs font-bold bg-slate-700 px-2 py-1 md:px-3 md:py-1.5 rounded text-slate-200 uppercase tracking-wider transition-colors hover:bg-slate-600 w-fit">
               {t[lang].log} {isLogsOpen ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
             </button>
             {isLogsOpen && (
-              <div className="absolute top-full left-0 mt-2 w-64 bg-emerald-900/95 border border-emerald-700 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm z-40">
+              <div className="absolute top-full left-0 mt-2 w-64 bg-slate-800/95 border border-slate-600 rounded p-2 shadow-xl max-h-48 overflow-y-auto backdrop-blur-sm z-40">
                 <div className="flex flex-col gap-1 text-[10px] md:text-xs">
                   {logs.map((log, i) => (
-                    <div key={i} className="text-emerald-200/80 border-b border-emerald-800/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
+                    <div key={i} className="text-slate-100/80 border-b border-slate-700/50 pb-1" style={{ opacity: 1 - i * 0.15 }}>
                       {renderLog(log)}
                     </div>
                   ))}
@@ -814,12 +815,12 @@ export default function App() {
         </div>
 
         {/* Left Spacer for Symmetry on PC */}
-        <div className="hidden md:block md:w-48 h-full shrink-0 border-r border-emerald-800/50 bg-emerald-900/20 pointer-events-none"></div>
+        <div className="hidden md:block md:w-48 h-full shrink-0 border-r border-slate-700/50 bg-slate-800/20 pointer-events-none"></div>
 
         {/* Field */}
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-emerald-900/40 flex flex-col items-center">
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-slate-800/40 flex flex-col items-center">
           <div className="w-full max-w-4xl">
-            <div className="text-emerald-300 text-xs md:text-sm font-semibold uppercase tracking-widest mb-4 text-center md:text-left">{t[lang].field}</div>
+            <div className="text-slate-200 text-xs md:text-sm font-semibold uppercase tracking-widest mb-4 text-center md:text-left">{t[lang].field}</div>
             <div className="flex flex-wrap content-start justify-center md:justify-start gap-2 md:gap-3">
               {fieldFaceUp.map(tile => (
                 <Tile 
@@ -836,9 +837,9 @@ export default function App() {
         </div>
 
         {/* Deck */}
-        <div className="absolute bottom-2 right-2 md:static md:w-48 md:h-auto shrink-0 md:border-l border-emerald-800/50 p-2 md:p-8 flex flex-col items-end md:items-center justify-end md:justify-center gap-2 md:gap-8 bg-transparent md:bg-emerald-900/20 pointer-events-none md:pointer-events-auto z-10">
+        <div className="absolute bottom-2 right-2 md:static md:w-48 md:h-auto shrink-0 md:border-l border-slate-700/50 p-2 md:p-8 flex flex-col items-end md:items-center justify-end md:justify-center gap-2 md:gap-8 bg-transparent md:bg-slate-800/20 pointer-events-none md:pointer-events-auto z-10">
           <div className="pointer-events-auto flex flex-col items-end md:items-center">
-            <div className="text-emerald-300 text-[10px] md:text-sm font-semibold uppercase tracking-widest mb-2 md:mb-8 bg-emerald-900/80 md:bg-transparent px-2 py-1 rounded">{t[lang].deck} ({fieldFaceDown.length})</div>
+            <div className="text-slate-200 text-[10px] md:text-sm font-semibold uppercase tracking-widest mb-2 md:mb-8 bg-slate-800/80 md:bg-transparent px-2 py-1 rounded">{t[lang].deck} ({fieldFaceDown.length})</div>
             <div className="relative w-10 h-20 md:w-14 md:h-28 cursor-pointer hover:scale-105 transition-transform" onClick={handleDrawFaceDown}>
               {fieldFaceDown.slice(0, 5).map((_, i) => (
                 <Tile key={i} tile={_} isFaceDown className="absolute" style={{ top: -i * 2, left: -i * 2 }} />
@@ -852,7 +853,7 @@ export default function App() {
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 pointer-events-auto">
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDrawFaceDown(); }}
-                    className="px-4 py-2 md:px-6 md:py-3 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 rounded-full font-black text-xs md:text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 flex items-center gap-1 md:gap-2 animate-bounce whitespace-nowrap"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-slate-400 hover:bg-slate-300 text-slate-700 rounded-full font-black text-xs md:text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 flex items-center gap-1 md:gap-2 animate-bounce whitespace-nowrap"
                   >
                     <Play size={14} className="fill-current md:w-4 md:h-4" />
                     {lang === 'zh' ? '点击摸牌' : 'Draw Tile'}
@@ -865,7 +866,7 @@ export default function App() {
       </main>
 
       {/* Player Hand */}
-      <div className="bg-emerald-950 p-2 md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 border-t border-emerald-800 h-auto md:h-64 relative">
+      <div className="bg-slate-700 p-2 md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 border-t border-slate-700 h-auto md:h-64 relative">
         
         {/* Top Bar (Mobile & Desktop) */}
         <div className="absolute top-2 right-2 md:top-4 md:right-4 z-30 flex gap-2">
@@ -890,7 +891,7 @@ export default function App() {
                 <Trophy size={16} className="md:w-5 md:h-5" />
                 {lang === 'zh' ? '胡牌' : 'Win'}
               </button>
-              <div className="text-orange-300 font-bold text-xs md:text-sm bg-emerald-950/80 px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-orange-500/30 whitespace-nowrap">
+              <div className="text-orange-300 font-bold text-xs md:text-sm bg-slate-700/80 px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-orange-500/30 whitespace-nowrap">
                 {getHandTypeName(currentWinOption.type, lang)} (+{currentWinOption.score + (players[0].isRiichi ? 1 : 0)})
               </div>
             </div>
@@ -940,7 +941,7 @@ export default function App() {
               );
             })}
           </div>
-          <div className="text-emerald-400 text-[10px] md:text-sm h-4 md:h-6 text-center px-2">
+          <div className="text-slate-300 text-[10px] md:text-sm h-4 md:h-6 text-center px-2">
             {players[0]?.isRiichi ? (
               <span className="text-purple-400 font-bold animate-pulse">
                 {lang === 'zh' ? '立直状态：自动打出摸到的牌，不可改变手牌。' : 'Riichi: Auto-discarding drawn tiles. Hand is locked.'}
@@ -959,8 +960,8 @@ export default function App() {
       {/* Modals */}
       {isRulesOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setIsRulesOpen(false)}>
-          <div className="bg-emerald-950 border-2 border-emerald-600 rounded-2xl p-4 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setIsRulesOpen(false)} className="absolute top-3 right-3 md:top-4 md:right-4 text-emerald-400 hover:text-white bg-emerald-900 hover:bg-emerald-700 p-2 rounded-full transition-colors">
+          <div className="bg-slate-700 border-2 border-slate-500 rounded-2xl p-4 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setIsRulesOpen(false)} className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-600 p-2 rounded-full transition-colors">
               <X size={20} />
             </button>
             <h2 className="text-2xl font-bold text-yellow-400 mb-4 md:mb-6 text-center">{t[lang].rulesTitle}</h2>
@@ -969,17 +970,17 @@ export default function App() {
                 {rulesData.filter(r => r.id !== 'sandui' && r.id !== 'sanshoku' && r.id !== 'kuikou' && r.id !== 'musou').map(r => (
                   <div key={r.id} className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
+                      <span className="text-slate-200 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
                       <div className="flex gap-0.5">
                         {r.example.map((ex, i) => (
                           <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
                         ))}
                       </div>
                     </div>
-                    <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
+                    <div className="text-slate-50/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
                   </div>
                 ))}
-                <div className="mt-auto pt-4 border-t border-emerald-800 text-yellow-200 flex items-start gap-1">
+                <div className="mt-auto pt-4 border-t border-slate-700 text-yellow-200 flex items-start gap-1">
                   <StarIcon className="mt-0.5 shrink-0" />
                   <div>
                     <span className="font-bold text-yellow-400">{t[lang].starBonus}</span> 
@@ -997,7 +998,7 @@ export default function App() {
                   return (
                     <div key={r.id} className={`flex flex-col gap-1 ${isDisabled ? 'opacity-30 grayscale' : ''}`}>
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-300 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
+                        <span className="text-slate-200 font-bold whitespace-nowrap">{r.name[lang]} ({r.pts}):</span>
                         <div className="flex gap-0.5">
                           {r.example.map((ex, i) => (
                             <Tile key={i} tile={{ id: `ex_${i}`, top: ex.t, bottom: ex.b, isStar: ex.s || false }} size="mini" />
@@ -1005,7 +1006,7 @@ export default function App() {
                         </div>
                         {isDisabled && <span className="text-red-400 text-[10px] border border-red-400/50 rounded px-1 ml-auto">{lang === 'zh' ? '未启用' : 'Disabled'}</span>}
                       </div>
-                      <div className="text-emerald-100/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
+                      <div className="text-slate-50/80 pl-2 leading-relaxed">{r.desc[lang]}</div>
                     </div>
                   );
                 })}
@@ -1016,16 +1017,25 @@ export default function App() {
       )}
 
       {phase === 'ROUND_END' && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-emerald-900 border-2 border-yellow-500 rounded-2xl p-8 max-w-lg w-full flex flex-col items-center text-center shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-hidden">
+          {winnerInfo && (
+            <>
+              <Firework delay={0.1} x="20%" y="30%" scale={0.8} />
+              <Firework delay={0.5} x="80%" y="40%" scale={1} />
+              <Firework delay={0.9} x="30%" y="70%" scale={0.6} />
+              <Firework delay={1.2} x="70%" y="80%" scale={0.9} />
+              <Firework delay={1.6} x="50%" y="20%" scale={1.2} />
+            </>
+          )}
+          <div className="bg-slate-800 border-2 border-yellow-500 rounded-2xl p-8 max-w-lg w-full flex flex-col items-center text-center shadow-2xl relative z-10">
             <Trophy size={64} className="text-yellow-400 mb-4" />
             <h2 className="text-3xl font-bold mb-2">{t[lang].roundOver}</h2>
             
             {winnerInfo ? (
               <div className="flex flex-col gap-4 w-full">
-                <div className="bg-emerald-800 p-4 rounded-xl flex flex-col items-center gap-3">
+                <div className="bg-slate-700 p-4 rounded-xl flex flex-col items-center gap-3">
                   <div className="text-xl font-bold text-yellow-400">{getPlayerName(winnerInfo.player.id)} {t[lang].wins}!</div>
-                  <div className="flex gap-1 md:gap-2 justify-center bg-emerald-900/50 p-2 md:p-3 rounded-lg">
+                  <div className="flex gap-1 md:gap-2 justify-center bg-slate-800/50 p-2 md:p-3 rounded-lg">
                     {winnerInfo.player.hand.map((tile, i) => (
                       <Tile key={i} tile={tile} size="mini" className="scale-110 md:scale-125 mx-1 md:mx-2" />
                     ))}
@@ -1035,9 +1045,9 @@ export default function App() {
                 
                 {winnerInfo.tenpaiWinners.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <div className="text-sm text-emerald-300 uppercase tracking-wider">{t[lang].tenpaiWinners}</div>
+                    <div className="text-sm text-slate-200 uppercase tracking-wider">{t[lang].tenpaiWinners}</div>
                     {winnerInfo.tenpaiWinners.map((tw, i) => (
-                      <div key={i} className="bg-emerald-800/50 p-2 rounded-lg flex flex-col items-center gap-2 px-4">
+                      <div key={i} className="bg-slate-700/50 p-2 rounded-lg flex flex-col items-center gap-2 px-4">
                         <div className="flex justify-between w-full">
                           <span>{getPlayerName(tw.player.id)}</span>
                           <span className="text-yellow-400">+{tw.win.score} {t[lang].pts}</span>
@@ -1053,19 +1063,19 @@ export default function App() {
                 )}
               </div>
             ) : (
-              <div className="text-xl text-emerald-200">{t[lang].draw}</div>
+              <div className="text-xl text-slate-100">{t[lang].draw}</div>
             )}
             
             <div className="flex gap-4 mt-8">
               <button 
                 onClick={startNewGame}
-                className="px-6 py-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+                className="px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
               >
                 {lang === 'zh' ? '清零重开' : 'Clear & Restart'}
               </button>
               <button 
                 onClick={proceedToNextRound}
-                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-emerald-950 rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-700 rounded-full font-bold shadow-lg transition-transform hover:scale-105"
               >
                 {lang === 'zh' ? '开始下局' : 'Next Round'}
               </button>
@@ -1075,14 +1085,19 @@ export default function App() {
       )}
 
       {phase === 'GAME_OVER' && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-emerald-900 border-2 border-yellow-500 rounded-2xl p-8 max-w-lg w-full flex flex-col items-center text-center shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-hidden">
+          <Firework delay={0.1} x="20%" y="30%" scale={0.8} />
+          <Firework delay={0.5} x="80%" y="40%" scale={1} />
+          <Firework delay={0.9} x="30%" y="70%" scale={0.6} />
+          <Firework delay={1.2} x="70%" y="80%" scale={0.9} />
+          <Firework delay={1.6} x="50%" y="20%" scale={1.2} />
+          <div className="bg-slate-800 border-2 border-yellow-500 rounded-2xl p-8 max-w-lg w-full flex flex-col items-center text-center shadow-2xl relative z-10">
             <Trophy size={64} className="text-yellow-400 mb-4" />
             <h2 className="text-4xl font-bold mb-6 text-yellow-400">{t[lang].gameOver}</h2>
             
             <div className="flex flex-col gap-2 w-full mb-8">
               {[...players].sort((a, b) => b.score - a.score).map((p, i) => (
-                <div key={p.id} className={`flex justify-between items-center p-4 rounded-xl ${i === 0 ? 'bg-yellow-500 text-emerald-900 font-bold text-xl' : 'bg-emerald-800'}`}>
+                <div key={p.id} className={`flex justify-between items-center p-4 rounded-xl ${i === 0 ? 'bg-yellow-500 text-slate-800 font-bold text-xl' : 'bg-slate-700'}`}>
                   <span>{i + 1}. {getPlayerName(p.id)}</span>
                   <span>{p.score} {t[lang].pts}</span>
                 </div>
@@ -1091,7 +1106,7 @@ export default function App() {
             
             <button 
               onClick={startNewGame}
-              className="px-8 py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-full text-xl transition-transform hover:scale-105 flex items-center gap-2"
+              className="px-8 py-3 bg-slate-600 hover:bg-slate-500 text-white font-bold rounded-full text-xl transition-transform hover:scale-105 flex items-center gap-2"
             >
               <RefreshCw /> {t[lang].playAgain}
             </button>

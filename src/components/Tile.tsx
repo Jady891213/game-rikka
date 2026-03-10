@@ -77,9 +77,9 @@ export const Tile: React.FC<TileProps> = ({ tile, isFaceDown, isSelected, isWinn
       <div 
         onClick={onClick}
         onMouseEnter={onMouseEnter}
-        className={`${sizeClasses} ${isMini ? 'border' : 'border-2'} bg-emerald-800 border-emerald-600 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
+        className={`${sizeClasses} ${isMini ? 'border' : 'border-2'} bg-slate-700 border-slate-500 rounded shadow-md flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform ${className}`}
       >
-        <div className={`${innerSizeClasses} border border-emerald-500/30 rounded-sm opacity-50`} />
+        <div className={`${innerSizeClasses} border border-slate-400/30 rounded-sm opacity-50`} />
       </div>
     );
   }
