@@ -124,14 +124,14 @@ const rulesData = [
     name: { zh: '三连', en: 'Sanren' },
     pts: <>{3}+<StarIcon/> pt</>,
     desc: { zh: '2组3连组合（下方点数相同，上方点数连续的3张牌）。', en: 'Two sets of 3 tiles. Each set has identical bottoms and sequential tops.' },
-    example: [{t:1,b:1}, {t:2,b:1}, {t:3,b:1}, {t:3,b:2}, {t:4,b:2}, {t:5,b:2}]
+    example: [{t:1,b:1,s:true}, {t:2,b:1}, {t:3,b:1}, {t:3,b:2}, {t:4,b:2}, {t:5,b:2}]
   },
   {
     id: 'rikka',
     name: { zh: '六华', en: 'Rikka' },
     pts: <>{6}+{1} pt</>,
     desc: { zh: '6张牌下方点数全部相同，上方为1-6连续。', en: '6 tiles with identical bottoms and tops 1 through 6.' },
-    example: [{t:1,b:1}, {t:2,b:1}, {t:3,b:1}, {t:4,b:1}, {t:5,b:1}, {t:6,b:1}]
+    example: [{t:1,b:1,s:true}, {t:2,b:1}, {t:3,b:1}, {t:4,b:1}, {t:5,b:1}, {t:6,b:1}]
   },
   {
     id: 'sandui',
@@ -139,7 +139,7 @@ const rulesData = [
     name: { zh: '三对', en: 'Sandui' },
     pts: <>{5}+<StarIcon/> pt</>,
     desc: { zh: '3对一模一样的牌。', en: '3 pairs of identical tiles.' },
-    example: [{t:1,b:1}, {t:1,b:1}, {t:3,b:2}, {t:3,b:2}, {t:6,b:4}, {t:6,b:4}]
+    example: [{t:1,b:1,s:true}, {t:1,b:1,s:true}, {t:3,b:2}, {t:3,b:2}, {t:6,b:4}, {t:6,b:4}]
   },
   {
     id: 'sanshoku',
@@ -147,7 +147,7 @@ const rulesData = [
     name: { zh: '三色', en: 'Sanshoku' },
     pts: <>{3}+<StarIcon/> pt</>,
     desc: { zh: '牌面只有三种颜色（只能被动胡/一牌之差）。', en: 'Hand contains exactly 3 unique numbers across all tops and bottoms. (Passive win only).' },
-    example: [{t:1,b:2}, {t:1,b:3}, {t:2,b:3}, {t:1,b:1}, {t:2,b:2}, {t:3,b:3}]
+    example: [{t:1,b:2}, {t:1,b:3}, {t:2,b:3}, {t:1,b:1,s:true}, {t:2,b:2,s:true}, {t:3,b:3,s:true}]
   },
   {
     id: 'kuikou',
